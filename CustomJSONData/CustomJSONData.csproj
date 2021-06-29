@@ -9,15 +9,8 @@
         <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
         <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
         <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
+        <DebugType>portable</DebugType>
         <CodeAnalysisRuleSet>..\..\NoodleExtensions\NoodleExtensions\NoodleExtensions.ruleset</CodeAnalysisRuleSet>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DebugType>full</DebugType>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DebugType>pdbonly</DebugType>
     </PropertyGroup>
 
     <PropertyGroup Condition="$(DefineConstants.Contains('CIBuild')) OR '$(NCrunch)' == '1'">
