@@ -75,6 +75,8 @@ namespace CustomJSONData
                 return;
             }
 
+            bool start = false;
+
             foreach (CustomEventCallbackData customEventCallbackData in _customEventCallbackData)
             {
                 while (customEventCallbackData.nextEventIndex < BeatmapData.customEventsData.Count)
@@ -83,6 +85,14 @@ namespace CustomJSONData
                     if (customEventData.time - customEventCallbackData.aheadTime >= AudioTimeSource?.songTime)
                     {
                         break;
+                    }
+
+                    // Events are before/during start
+                    // This should only be done if the starting time is 0
+                    if (customEventData.time <= SpawningStartTime && SpawningStartTime == 0)
+                    {
+                        start = true;
+                        // TODO: Pause the song so the audio doesn't play while loading?
                     }
 
                     // skip events before song start
@@ -94,6 +104,16 @@ namespace CustomJSONData
                     customEventCallbackData.nextEventIndex++;
                 }
             }
+
+            // Restart the song since we were loading for events
+            // this *should* fix the issues caused by the map running in the background while events were loading
+            if (!start || AudioTimeSource is not AudioTimeSyncController implAudioTimeSource)
+            {
+                return;
+            }
+
+            implAudioTimeSource.StartSong(0);
+            implAudioTimeSource.Resume();
         }
 
         public class CustomEventCallbackData
