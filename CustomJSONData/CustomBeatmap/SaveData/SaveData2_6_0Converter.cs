@@ -189,6 +189,7 @@ namespace CustomJSONData.CustomBeatmap
                 colorBoosts,
                 new List<BeatmapSaveData.LightColorEventBoxGroup>(),
                 new List<BeatmapSaveData.LightRotationEventBoxGroup>(),
+                new List<BeatmapSaveData.LightTranslationEventBoxGroup>(),
                 basicEventTypesWithKeywords,
                 true,
                 true,

@@ -43,6 +43,7 @@ namespace CustomJSONData.CustomBeatmap
             List<BeatmapSaveData.ColorBoostEventData> colorBoostBeatmapEvents,
             List<BeatmapSaveData.LightColorEventBoxGroup> lightColorEventBoxGroups,
             List<BeatmapSaveData.LightRotationEventBoxGroup> lightRotationEventBoxGroups,
+            List<BeatmapSaveData.LightTranslationEventBoxGroup> lightTranslationEventBoxGroups,
             BasicEventTypesWithKeywords basicEventTypesWithKeywords,
             bool useNormalEventsAsCompatibleEvents,
             bool version2_6_0AndEarlier,
@@ -63,6 +64,7 @@ namespace CustomJSONData.CustomBeatmap
                 colorBoostBeatmapEvents,
                 lightColorEventBoxGroups,
                 lightRotationEventBoxGroups,
+                lightTranslationEventBoxGroups,
                 basicEventTypesWithKeywords,
                 useNormalEventsAsCompatibleEvents)
         {
@@ -109,6 +111,7 @@ namespace CustomJSONData.CustomBeatmap
             List<BeatmapSaveData.ColorBoostEventData> colorBoostBeatmapEvents = new();
             List<BeatmapSaveData.LightColorEventBoxGroup> lightColorEventBoxGroups = new();
             List<BeatmapSaveData.LightRotationEventBoxGroup> lightRotationEventBoxGroups = new();
+            List<LightTranslationEventBoxGroup> lightTranslationEventBoxGroups = new();
             List<BasicEventTypesWithKeywords.BasicEventTypesForKeyword> basicEventTypesForKeyword = new();
             bool useNormalEventsAsCompatibleEvents = default;
             CustomData data = new();
@@ -247,6 +250,7 @@ namespace CustomJSONData.CustomBeatmap
                 colorBoostBeatmapEvents.OrderBy(n => n).ToList(),
                 lightColorEventBoxGroups.OrderBy(n => n).ToList(),
                 lightRotationEventBoxGroups.OrderBy(n => n).ToList(),
+                lightTranslationEventBoxGroups.OrderBy(n => n).ToList(),
                 new BasicEventTypesWithKeywords(basicEventTypesForKeyword),
                 useNormalEventsAsCompatibleEvents,
                 false,
@@ -888,6 +892,7 @@ namespace CustomJSONData.CustomBeatmap
                             float brightnessDistributionParam = default;
                             bool brightnessDistributionShouldAffectFirstBaseEvent = default;
                             EventBox.DistributionParamType brightnessDistributionParamType = default;
+                            EaseType brightnessDistributionEaseType = default;
                             List<LightColorBaseData> lightColorBaseDataList = new();
                             reader.ReadObject(eventName =>
                             {
@@ -977,6 +982,7 @@ namespace CustomJSONData.CustomBeatmap
                                 brightnessDistributionParam,
                                 brightnessDistributionShouldAffectFirstBaseEvent,
                                 brightnessDistributionParamType,
+                                brightnessDistributionEaseType,
                                 lightColorBaseDataList));
                         });
                         break;
@@ -1021,6 +1027,7 @@ namespace CustomJSONData.CustomBeatmap
                             float rotationDistributionParam = default;
                             EventBox.DistributionParamType rotationDistributionParamType = default;
                             bool rotationDistributionShouldAffectFirstBaseEvent = default;
+                            EaseType rotationDistributionEaseType = default;
                             Axis axis = default;
                             bool flipRotation = default;
                             List<LightRotationBaseData> lightRotationBaseDataList = new();
@@ -1126,6 +1133,7 @@ namespace CustomJSONData.CustomBeatmap
                                 rotationDistributionParam,
                                 rotationDistributionParamType,
                                 rotationDistributionShouldAffectFirstBaseEvent,
+                                rotationDistributionEaseType,
                                 axis,
                                 flipRotation,
                                 lightRotationBaseDataList));

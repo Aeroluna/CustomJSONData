@@ -8,7 +8,7 @@
             int elementId,
             bool usePreviousEventValue,
             EaseType easeType,
-            Axis axis,
+            LightAxis axis,
             float rotation,
             int loopCount,
             LightRotationDirection rotationDirection,
