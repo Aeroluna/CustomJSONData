@@ -109,7 +109,7 @@ namespace CustomJSONData
                 throw new JsonSerializationException(message);
             }
 
-            Logger.Log(message + " Error while reading customData, exception skipped.", IPA.Logging.Logger.Level.Error);
+            Plugin.Log.LogError(message + " Error while reading customData, exception skipped.");
             reader.Skip();
             return false;
         }

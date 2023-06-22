@@ -1,15 +1,7 @@
-﻿using IPA.Utilities;
-
-namespace CustomJSONData.CustomBeatmap
+﻿namespace CustomJSONData.CustomBeatmap
 {
     public class CustomSpawnRotationBeatmapEventdata : SpawnRotationBeatmapEventData, ICustomData
     {
-        private static readonly FieldAccessor<SpawnRotationBeatmapEventData, SpawnRotationEventType>.Accessor _spawnRotationEventTypeAccessor =
-            FieldAccessor<SpawnRotationBeatmapEventData, SpawnRotationEventType>.GetAccessor("spawnRotationEventType");
-
-        private static readonly FieldAccessor<SpawnRotationBeatmapEventData, float>.Accessor _deltaRotationAccessor =
-            FieldAccessor<SpawnRotationBeatmapEventData, float>.GetAccessor("_deltaRotation");
-
         public CustomSpawnRotationBeatmapEventdata(
             float time,
             SpawnRotationEventType spawnRotationEventType,
@@ -24,11 +16,10 @@ namespace CustomJSONData.CustomBeatmap
 
         public override BeatmapDataItem GetCopy()
         {
-            SpawnRotationBeatmapEventData @this = this;
             return new CustomSpawnRotationBeatmapEventdata(
                 time,
-                _spawnRotationEventTypeAccessor(ref @this),
-                _deltaRotationAccessor(ref @this),
+                spawnRotationEventType,
+                _deltaRotation,
                 customData.Copy());
         }
     }

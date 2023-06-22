@@ -1,5 +1,6 @@
 ﻿using System;
 using BeatmapSaveDataVersion3;
+using HarmonyLib;
 using JetBrains.Annotations;
 using BpmProcessor = BeatmapDataLoader.BpmTimeProcessor;
 
@@ -30,10 +31,32 @@ namespace CustomJSONData.CustomBeatmap
                 ? customData.customData : new CustomData();
         }
 
+        // rip virtualizer
+        [HarmonyPatch(typeof(DataConvertor<BeatmapEventData>))]
+        public static class CustomDataConverterPatches
+        {
+            [HarmonyPrefix]
+            [HarmonyPatch(nameof(DataConvertor<BeatmapEventData>.ProcessItem))]
+            private static bool OverrideData(object __instance, object item, ref object __result)
+            {
+                switch (__instance)
+                {
+                    case CustomDataConverter<BeatmapObjectData> customObjectDataConverter:
+                        __result = customObjectDataConverter.ProcessItem(item);
+                        return false;
+                    case CustomDataConverter<BeatmapEventData> customEventDataConverter:
+                        __result = customEventDataConverter.ProcessItem(item);
+                        return false;
+                    default:
+                        return true;
+                }
+            }
+        }
+
         [UsedImplicitly]
         public class CustomDataConverter<T> : DataConvertor<T>
         {
-            public override T ProcessItem(object item)
+            public new T ProcessItem(object item)
             {
                 return _convertors.TryGetValue(CustomBeatmapData.GetCustomType(item), out DataItemConvertor<T> dataItemConvertor)
                     ? dataItemConvertor.Convert(item)
@@ -50,7 +73,7 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            protected override NoteData Convert(BeatmapSaveData.ColorNoteData data)
+            public override NoteData Convert(BeatmapSaveData.ColorNoteData data)
             {
                 NoteData noteData = CustomNoteData.CreateCustomBasicNoteData(
                     BeatToTime(data.beat),
@@ -73,7 +96,7 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            protected override NoteData Convert(BeatmapSaveData.BombNoteData data)
+            public override NoteData Convert(BeatmapSaveData.BombNoteData data)
             {
                 return CustomNoteData.CreateCustomBombNoteData(
                     BeatToTime(data.beat),
@@ -100,7 +123,7 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            protected override ObstacleData Convert(BeatmapSaveData.ObstacleData data)
+            public override ObstacleData Convert(BeatmapSaveData.ObstacleData data)
             {
                 float beat = BeatToTime(data.beat);
                 return new CustomObstacleData(
@@ -123,7 +146,7 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            protected override SliderData Convert(BeatmapSaveData.SliderData data)
+            public override SliderData Convert(BeatmapSaveData.SliderData data)
             {
                 return CustomSliderData.CreateCustomSliderData(
                     _convertColorType(data.colorType),
@@ -153,7 +176,7 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            protected override SliderData Convert(BeatmapSaveData.BurstSliderData data)
+            public override SliderData Convert(BeatmapSaveData.BurstSliderData data)
             {
                 return CustomSliderData.CreateCustomBurstSliderData(
                     _convertColorType(data.colorType),
@@ -182,7 +205,7 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            protected override WaypointData Convert(BeatmapSaveData.WaypointData data)
+            public override WaypointData Convert(BeatmapSaveData.WaypointData data)
             {
                 return new CustomWaypointData(
                     BeatToTime(data.beat),
@@ -202,7 +225,7 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            protected override BPMChangeBeatmapEventData Convert(BeatmapSaveData.BpmChangeEventData data)
+            public override BPMChangeBeatmapEventData Convert(BeatmapSaveData.BpmChangeEventData data)
             {
                 return new CustomBPMChangeBeatmapEventData(
                     BeatToTime(data.beat),
@@ -220,7 +243,7 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            protected override SpawnRotationBeatmapEventData Convert(BeatmapSaveData.RotationEventData data)
+            public override SpawnRotationBeatmapEventData Convert(BeatmapSaveData.RotationEventData data)
             {
                 SpawnRotationBeatmapEventData.SpawnRotationEventType executionTime =
                     data.executionTime == BeatmapSaveData.ExecutionTime.Early
@@ -248,7 +271,7 @@ namespace CustomJSONData.CustomBeatmap
                 _specialEventsFilter = specialEventsFilter;
             }
 
-            protected override BasicBeatmapEventData Convert(BeatmapSaveData.BasicEventData data)
+            public override BasicBeatmapEventData Convert(BeatmapSaveData.BasicEventData data)
             {
                 if (!_specialEventsFilter.IsEventValid(data.eventType))
                 {
@@ -273,7 +296,7 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            protected override ColorBoostBeatmapEventData Convert(BeatmapSaveData.ColorBoostEventData data)
+            public override ColorBoostBeatmapEventData Convert(BeatmapSaveData.ColorBoostEventData data)
             {
                 return new CustomColorBoostBeatmapEventData(
                     BeatToTime(data.beat),

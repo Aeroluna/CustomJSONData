@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using BSIPA_Utilities;
 using HarmonyLib;
-using IPA.Utilities;
 using JetBrains.Annotations;
 
 namespace CustomJSONData.CustomBeatmap
@@ -26,7 +26,7 @@ namespace CustomJSONData.CustomBeatmap
         {
             BeatmapData @this = this;
             _beatmapDataItemsPerTypeAccessor(ref @this) =
-                new CustomBeatmapDataSortedListForTypeAndIds<BeatmapDataItem>(_beatmapDataItemsPerTypeAccessor(ref @this));
+                new CustomBeatmapDataSortedListForTypeAndIds(_beatmapDataItemsPerTypeAndId);
             this.version2_6_0AndEarlier = version2_6_0AndEarlier;
             this.customData = customData;
             this.beatmapCustomData = beatmapCustomData;
@@ -62,57 +62,42 @@ namespace CustomJSONData.CustomBeatmap
             return type;
         }
 
-        public override void AddBeatmapObjectData(BeatmapObjectData beatmapObjectData)
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(BeatmapData.AddBeatmapObjectData))]
+        public static void AddBeatmapObjectData(BeatmapData __instance, BeatmapObjectData beatmapObjectData)
         {
-            _beatmapObjectDatas.Add(beatmapObjectData);
-            base.AddBeatmapObjectData(beatmapObjectData);
-        }
-
-        // InOrder variants do not use a virtual call to AddBeatmapObjectData so they will not call the above method
-        public override void AddBeatmapObjectDataInOrder(BeatmapObjectData beatmapObjectData)
-        {
-            _beatmapObjectDatas.Add(beatmapObjectData);
-            base.AddBeatmapObjectDataInOrder(beatmapObjectData);
-        }
-
-        public override void InsertBeatmapEventData(BeatmapEventData beatmapEventData)
-        {
-            _beatmapEventDatas.Add(beatmapEventData);
-            base.InsertBeatmapEventData(beatmapEventData);
-        }
-
-        public override void InsertBeatmapEventDataInOrder(BeatmapEventData beatmapEventData)
-        {
-            _beatmapEventDatas.Add(beatmapEventData);
-            base.InsertBeatmapEventDataInOrder(beatmapEventData);
-        }
-
-        public void InsertCustomEventData(CustomEventData customEventData)
-        {
-            _customEventDatas.Add(customEventData);
-            LinkedListNode<BeatmapDataItem> node = _beatmapDataItemsPerTypeAndId.InsertItem(customEventData);
-            if (updateAllBeatmapDataOnInsert)
+            if (__instance is CustomBeatmapData customBeatmapData)
             {
-                InsertToAllBeatmapData(customEventData, node);
+                customBeatmapData._beatmapObjectDatas.Add(beatmapObjectData);
             }
         }
 
-        // what in gods name is the point of this
-        public void InsertCustomEventDataInOrder(CustomEventData customEventData)
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(BeatmapData.InsertBeatmapEventData))]
+        public static void InsertBeatmapEventData(BeatmapData __instance, BeatmapEventData beatmapEventData)
         {
-            InsertCustomEventData(customEventData);
-            InsertToAllBeatmapData(customEventData);
+            if (__instance is CustomBeatmapData customBeatmapData)
+            {
+                customBeatmapData._beatmapEventDatas.Add(beatmapEventData);
+            }
         }
 
-        public override BeatmapData GetCopy()
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(BeatmapData.GetCopy))]
+        public static bool GetCopy(BeatmapData __instance, ref BeatmapData __result)
         {
+            if (__instance is not CustomBeatmapData customBeatmapData)
+            {
+                return true;
+            }
+
             CustomBeatmapData beatmapData = new(
-                _numberOfLines,
-                version2_6_0AndEarlier,
-                customData.Copy(),
-                beatmapCustomData.Copy(),
-                levelCustomData.Copy());
-            foreach (BeatmapDataItem beatmapDataItem in allBeatmapDataItems)
+                customBeatmapData._numberOfLines,
+                customBeatmapData.version2_6_0AndEarlier,
+                customBeatmapData.customData.Copy(),
+                customBeatmapData.beatmapCustomData.Copy(),
+                customBeatmapData.levelCustomData.Copy());
+            foreach (BeatmapDataItem beatmapDataItem in customBeatmapData.allBeatmapDataItems)
             {
                 BeatmapDataItem copy = beatmapDataItem.GetCopy();
                 switch (copy)
@@ -129,19 +114,27 @@ namespace CustomJSONData.CustomBeatmap
                 }
             }
 
-            return beatmapData;
+            __result = beatmapData;
+            return false;
         }
 
-        public override BeatmapData GetFilteredCopy(Func<BeatmapDataItem, BeatmapDataItem> processDataItem)
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(BeatmapData.GetFilteredCopy))]
+        public static bool GetFilteredCopy(BeatmapData __instance, Func<BeatmapDataItem, BeatmapDataItem> processDataItem, ref BeatmapData __result)
         {
-            _isCreatingFilteredCopy = true;
+            if (__instance is not CustomBeatmapData customBeatmapData)
+            {
+                return true;
+            }
+
+            customBeatmapData._isCreatingFilteredCopy = true;
             CustomBeatmapData beatmapData = new(
-                _numberOfLines,
-                version2_6_0AndEarlier,
-                customData.Copy(),
-                beatmapCustomData.Copy(),
-                levelCustomData.Copy());
-            foreach (BeatmapDataItem beatmapDataItem in allBeatmapDataItems)
+                customBeatmapData._numberOfLines,
+                customBeatmapData.version2_6_0AndEarlier,
+                customBeatmapData.customData.Copy(),
+                customBeatmapData.beatmapCustomData.Copy(),
+                customBeatmapData.levelCustomData.Copy());
+            foreach (BeatmapDataItem beatmapDataItem in customBeatmapData.allBeatmapDataItems)
             {
                 BeatmapDataItem copy = processDataItem(beatmapDataItem.GetCopy());
                 if (copy != null)
@@ -161,8 +154,26 @@ namespace CustomJSONData.CustomBeatmap
                 }
             }
 
-            _isCreatingFilteredCopy = false;
-            return beatmapData;
+            customBeatmapData._isCreatingFilteredCopy = false;
+            __result = beatmapData;
+            return false;
+        }
+
+        public void InsertCustomEventData(CustomEventData customEventData)
+        {
+            _customEventDatas.Add(customEventData);
+            LinkedListNode<BeatmapDataItem> node = _beatmapDataItemsPerTypeAndId.InsertItem(customEventData);
+            if (updateAllBeatmapDataOnInsert)
+            {
+                InsertToAllBeatmapData(customEventData, node);
+            }
+        }
+
+        // what in gods name is the point of this
+        public void InsertCustomEventDataInOrder(CustomEventData customEventData)
+        {
+            InsertCustomEventData(customEventData);
+            InsertToAllBeatmapData(customEventData);
         }
     }
 }

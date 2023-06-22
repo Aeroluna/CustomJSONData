@@ -58,7 +58,7 @@ namespace CustomJSONData.HarmonyPatches
         }
 
         [HarmonyTranspiler]
-        [HarmonyPatch("GetBeatmapDataFromBeatmapSaveData")]
+        [HarmonyPatch(nameof(BeatmapDataLoader.GetBeatmapDataFromBeatmapSaveData))]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)

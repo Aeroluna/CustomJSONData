@@ -1,37 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
-using IPA.Utilities;
+using BSIPA_Utilities;
+using HarmonyLib;
 
 namespace CustomJSONData.CustomBeatmap
 {
-    public class CustomBeatmapDataSortedListForTypeAndIds<TBase> : BeatmapDataSortedListForTypeAndIds<TBase>
-        where TBase : BeatmapDataItem
+    [HarmonyPatch(typeof(BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>))]
+    public class CustomBeatmapDataSortedListForTypeAndIds : BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>
     {
-        private static readonly FieldAccessor<BeatmapDataSortedListForTypeAndIds<TBase>, Dictionary<ValueTuple<Type, int>, ISortedList<TBase>>>.Accessor _itemsAccessor =
-            FieldAccessor<BeatmapDataSortedListForTypeAndIds<TBase>, Dictionary<ValueTuple<Type, int>, ISortedList<TBase>>>.GetAccessor(nameof(_items));
+        private static readonly FieldAccessor<BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>, Dictionary<ValueTuple<Type, int>, ISortedList<BeatmapDataItem>>>.Accessor _itemsAccessor =
+            FieldAccessor<BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>, Dictionary<ValueTuple<Type, int>, ISortedList<BeatmapDataItem>>>.GetAccessor(nameof(_items));
 
-        public CustomBeatmapDataSortedListForTypeAndIds(BeatmapDataSortedListForTypeAndIds<TBase> original)
+        public CustomBeatmapDataSortedListForTypeAndIds(BeatmapDataSortedListForTypeAndIds<BeatmapDataItem> original)
         {
-            BeatmapDataSortedListForTypeAndIds<TBase> @this = this;
-            _itemsAccessor(ref @this) = _itemsAccessor(ref original);
+            BeatmapDataSortedListForTypeAndIds<BeatmapDataItem> @this = this;
+            _itemsAccessor(ref @this) = original._items;
             _sortedListsDataProcessors.Add(typeof(CustomEventData), null);
         }
 
         // GetType is a real stinky way of indexing stuff
-        public override LinkedListNode<TBase> InsertItem(TBase item)
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>.InsertItem))]
+        public static bool InsertItem(BeatmapDataSortedListForTypeAndIds<BeatmapDataItem> __instance, BeatmapDataItem item, ref LinkedListNode<BeatmapDataItem> __result)
         {
-            LinkedListNode<TBase> linkedListNode = GetList(CustomBeatmapData.GetCustomType(item), item.subtypeGroupIdentifier).Insert(item);
-            _itemToNodeMap[item] = linkedListNode;
-            return linkedListNode;
+            if (__instance is not CustomBeatmapDataSortedListForTypeAndIds customInstance)
+            {
+                return true;
+            }
+
+            __result = customInstance._itemToNodeMap[item] = customInstance.GetList(CustomBeatmapData.GetCustomType(item), item.subtypeGroupIdentifier).Insert(item);
+            return false;
         }
 
-        public override void RemoveItem(TBase item)
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>.RemoveItem))]
+        public static bool RemoveItem(BeatmapDataSortedListForTypeAndIds<BeatmapDataItem> __instance, BeatmapDataItem item)
         {
-            ISortedList<TBase> list = GetList(CustomBeatmapData.GetCustomType(item), item.subtypeGroupIdentifier);
-            if (_itemToNodeMap.TryGetValue(item, out LinkedListNode<TBase> node))
+            if (__instance is not CustomBeatmapDataSortedListForTypeAndIds customInstance)
+            {
+                return true;
+            }
+
+            ISortedList<BeatmapDataItem> list = customInstance.GetList(CustomBeatmapData.GetCustomType(item), item.subtypeGroupIdentifier);
+            if (customInstance._itemToNodeMap.TryGetValue(item, out LinkedListNode<BeatmapDataItem> node))
             {
                 list.Remove(node);
             }
+
+            return false;
         }
     }
 }

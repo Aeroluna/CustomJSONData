@@ -1,35 +1,31 @@
-﻿using HarmonyLib;
-using IPA;
-using JetBrains.Annotations;
+﻿using BepInEx;
+using BepInEx.Logging;
+using HarmonyLib;
 
 namespace CustomJSONData
 {
-    [Plugin(RuntimeOptions.DynamicInit)]
-    internal class Plugin
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency("BSIPA_Utilities")]
+    [BepInProcess("Beat Saber.exe")]
+    internal class Plugin : BaseUnityPlugin
     {
-        private readonly Harmony _harmonyInstance = new("aeroluna.CustomJSONData");
+        private readonly Harmony _harmonyInstance = new("dev.aeroluna.CustomJSONData");
 
-#pragma warning disable CA1822
-        [UsedImplicitly]
-        [Init]
-        public Plugin(IPA.Logging.Logger l)
+        internal static ManualLogSource Log { get; set; } = null!;
+
+        private void Awake()
         {
-            Logger.logger = l;
+            Log = Logger;
         }
 
-        [UsedImplicitly]
-        [OnEnable]
-        public void OnEnable()
+        private void Start()
         {
             _harmonyInstance.PatchAll(typeof(Plugin).Assembly);
         }
 
-        [UsedImplicitly]
-        [OnDisable]
-        public void OnDisable()
+        private void OnDestroy()
         {
             _harmonyInstance.UnpatchSelf();
         }
-#pragma warning restore CA1822
     }
 }

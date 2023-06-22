@@ -14,7 +14,7 @@ namespace CustomJSONData.HarmonyPatches
         private static readonly ConstructorInfo _customDataCtor = AccessTools.Constructor(typeof(CustomData));
 
         [HarmonyTranspiler]
-        [HarmonyPatch("InsertDefaultEnvironmentEvents")]
+        [HarmonyPatch(nameof(DefaultEnvironmentEventsFactory.InsertDefaultEnvironmentEvents))]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)

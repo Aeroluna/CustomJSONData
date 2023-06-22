@@ -46,7 +46,7 @@ namespace CustomJSONData.HarmonyPatches
             }
             catch
             {
-                Logger.Log($"Exception while deserializing [{path}].", IPA.Logging.Logger.Level.Critical);
+                Plugin.Log.LogError($"Exception while deserializing [{path}].");
                 throw;
             }
 

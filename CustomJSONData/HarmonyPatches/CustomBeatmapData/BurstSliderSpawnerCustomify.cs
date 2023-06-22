@@ -14,7 +14,7 @@ namespace CustomJSONData.HarmonyPatches
         private static readonly MethodInfo _getData = AccessTools.Method(typeof(BurstSliderSpawnerCustomify), nameof(GetSliderData));
 
         [HarmonyTranspiler]
-        [HarmonyPatch("ProcessSliderData")]
+        [HarmonyPatch(nameof(BurstSliderSpawner.ProcessSliderData))]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)

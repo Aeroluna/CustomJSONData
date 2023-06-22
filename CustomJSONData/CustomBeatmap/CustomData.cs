@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using IPA.Utilities;
+using BSIPA_Utilities;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -146,7 +146,7 @@ namespace CustomJSONData.CustomBeatmap
             string prefix = new('\t', indent);
             StringBuilder builder = new();
             builder.AppendLine(prefix + "{");
-            foreach ((string key, object? value) in dictionary)
+            foreach ((var key, object? value) in dictionary)
             {
                 builder.AppendLine($"{prefix}\t\"{key}\": {FormatObject(value, indent + 1)}");
             }
