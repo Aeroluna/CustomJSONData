@@ -62,29 +62,14 @@ namespace CustomJSONData.CustomBeatmap
             return type;
         }
 
-        public override void AddBeatmapObjectData(BeatmapObjectData beatmapObjectData)
+        internal void PreAddBeatmapObjectData(BeatmapObjectData beatmapObjectData)
         {
             _beatmapObjectDatas.Add(beatmapObjectData);
-            base.AddBeatmapObjectData(beatmapObjectData);
         }
 
-        // InOrder variants do not use a virtual call to AddBeatmapObjectData so they will not call the above method
-        public override void AddBeatmapObjectDataInOrder(BeatmapObjectData beatmapObjectData)
-        {
-            _beatmapObjectDatas.Add(beatmapObjectData);
-            base.AddBeatmapObjectDataInOrder(beatmapObjectData);
-        }
-
-        public override void InsertBeatmapEventData(BeatmapEventData beatmapEventData)
+        internal void PreInsertBeatmapEventData(BeatmapEventData beatmapEventData)
         {
             _beatmapEventDatas.Add(beatmapEventData);
-            base.InsertBeatmapEventData(beatmapEventData);
-        }
-
-        public override void InsertBeatmapEventDataInOrder(BeatmapEventData beatmapEventData)
-        {
-            _beatmapEventDatas.Add(beatmapEventData);
-            base.InsertBeatmapEventDataInOrder(beatmapEventData);
         }
 
         public void InsertCustomEventData(CustomEventData customEventData)
@@ -102,67 +87,6 @@ namespace CustomJSONData.CustomBeatmap
         {
             InsertCustomEventData(customEventData);
             InsertToAllBeatmapData(customEventData);
-        }
-
-        public override BeatmapData GetCopy()
-        {
-            CustomBeatmapData beatmapData = new(
-                _numberOfLines,
-                version2_6_0AndEarlier,
-                customData.Copy(),
-                beatmapCustomData.Copy(),
-                levelCustomData.Copy());
-            foreach (BeatmapDataItem beatmapDataItem in allBeatmapDataItems)
-            {
-                BeatmapDataItem copy = beatmapDataItem.GetCopy();
-                switch (copy)
-                {
-                    case BeatmapEventData beatmapEventData:
-                        beatmapData.InsertBeatmapEventDataInOrder(beatmapEventData);
-                        break;
-                    case BeatmapObjectData beatmapObjectData:
-                        beatmapData.AddBeatmapObjectDataInOrder(beatmapObjectData);
-                        break;
-                    case CustomEventData customEventData:
-                        beatmapData.InsertCustomEventDataInOrder(customEventData);
-                        break;
-                }
-            }
-
-            return beatmapData;
-        }
-
-        public override BeatmapData GetFilteredCopy(Func<BeatmapDataItem, BeatmapDataItem> processDataItem)
-        {
-            _isCreatingFilteredCopy = true;
-            CustomBeatmapData beatmapData = new(
-                _numberOfLines,
-                version2_6_0AndEarlier,
-                customData.Copy(),
-                beatmapCustomData.Copy(),
-                levelCustomData.Copy());
-            foreach (BeatmapDataItem beatmapDataItem in allBeatmapDataItems)
-            {
-                BeatmapDataItem copy = processDataItem(beatmapDataItem.GetCopy());
-                if (copy != null)
-                {
-                    switch (copy)
-                    {
-                        case BeatmapEventData beatmapEventData:
-                            beatmapData.InsertBeatmapEventDataInOrder(beatmapEventData);
-                            break;
-                        case BeatmapObjectData beatmapObjectData:
-                            beatmapData.AddBeatmapObjectDataInOrder(beatmapObjectData);
-                            break;
-                        case CustomEventData customEventData:
-                            beatmapData.InsertCustomEventDataInOrder(customEventData);
-                            break;
-                    }
-                }
-            }
-
-            _isCreatingFilteredCopy = false;
-            return beatmapData;
         }
     }
 }

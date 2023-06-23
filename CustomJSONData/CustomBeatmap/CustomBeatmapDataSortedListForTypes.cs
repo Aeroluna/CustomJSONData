@@ -16,22 +16,5 @@ namespace CustomJSONData.CustomBeatmap
             _itemsAccessor(ref @this) = _itemsAccessor(ref original);
             _sortedListsDataProcessors.Add(typeof(CustomEventData), null);
         }
-
-        // GetType is a real stinky way of indexing stuff
-        public override LinkedListNode<TBase> InsertItem(TBase item)
-        {
-            LinkedListNode<TBase> linkedListNode = GetList(CustomBeatmapData.GetCustomType(item), item.subtypeGroupIdentifier).Insert(item);
-            _itemToNodeMap[item] = linkedListNode;
-            return linkedListNode;
-        }
-
-        public override void RemoveItem(TBase item)
-        {
-            ISortedList<TBase> list = GetList(CustomBeatmapData.GetCustomType(item), item.subtypeGroupIdentifier);
-            if (_itemToNodeMap.TryGetValue(item, out LinkedListNode<TBase> node))
-            {
-                list.Remove(node);
-            }
-        }
     }
 }

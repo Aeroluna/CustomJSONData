@@ -78,16 +78,12 @@ namespace CustomJSONData.HarmonyPatches
                     new CodeInstruction(OpCodes.Call, _addCustomEvent))
 
                 // "convertor" is NOT the correct spelling
-                .ReplaceConverter<DataConvertor<BeatmapObjectData>, Converters.CustomDataConverter<BeatmapObjectData>>()
-
                 .ReplaceConverter<BeatmapDataLoader.ColorNoteConvertor, Converters.CustomColorNoteConverter>()
                 .ReplaceConverter<BeatmapDataLoader.BombNoteConvertor, Converters.CustomBombNoteConverter>()
                 .ReplaceConverter<BeatmapDataLoader.ObstacleConvertor, Converters.CustomObstacleConverter>()
                 .ReplaceConverter<BeatmapDataLoader.SliderConvertor, Converters.CustomSliderConverter>()
                 .ReplaceConverter<BeatmapDataLoader.BurstSliderConvertor, Converters.CustomBurstSliderConverter>()
                 .ReplaceConverter<BeatmapDataLoader.WaypointConvertor, Converters.CustomWaypointConverter>()
-
-                .ReplaceConverter<DataConvertor<BeatmapEventData>, Converters.CustomDataConverter<BeatmapEventData>>()
 
                 .ReplaceConverter<BeatmapDataLoader.BpmEventConvertor, Converters.CustomBpmEventConverter>()
                 .ReplaceConverter<BeatmapDataLoader.RotationEventConvertor, Converters.CustomRotationEventConverter>()
