@@ -45,6 +45,8 @@ namespace CustomJSONData.CustomBeatmap
             List<BeatmapSaveData.LightRotationEventBoxGroup> lightRotationEventBoxGroups,
             List<LightTranslationEventBoxGroup> lightTranslationEventBoxGroups,
             BasicEventTypesWithKeywords basicEventTypesWithKeywords,
+            List<FxEventBoxGroup> vfxEventBoxGroups,
+            FxEventsCollection fxEventsCollection,
             bool useNormalEventsAsCompatibleEvents,
             bool version2_6_0AndEarlier,
             List<CustomEventData> customEvents,
@@ -65,6 +67,8 @@ namespace CustomJSONData.CustomBeatmap
                 lightColorEventBoxGroups,
                 lightRotationEventBoxGroups,
                 lightTranslationEventBoxGroups,
+                vfxEventBoxGroups,
+                fxEventsCollection,
                 basicEventTypesWithKeywords,
                 useNormalEventsAsCompatibleEvents)
         {
@@ -113,6 +117,8 @@ namespace CustomJSONData.CustomBeatmap
             List<BeatmapSaveData.LightRotationEventBoxGroup> lightRotationEventBoxGroups = new();
             List<LightTranslationEventBoxGroup> lightTranslationEventBoxGroups = new();
             List<BasicEventTypesWithKeywords.BasicEventTypesForKeyword> basicEventTypesForKeyword = new();
+            List<FxEventBoxGroup> vfxEventBoxGroups = new();
+            FxEventsCollection fxEventsCollection = new();
             bool useNormalEventsAsCompatibleEvents = default;
             CustomData data = new();
             List<CustomEventData> customEvents = new();
@@ -136,6 +142,8 @@ namespace CustomJSONData.CustomBeatmap
                 lightRotationEventBoxGroups,
                 lightTranslationEventBoxGroups,
                 basicEventTypesForKeyword,
+                vfxEventBoxGroups,
+                fxEventsCollection,
                 useNormalEventsAsCompatibleEvents,
                 customEvents,
                 new SaveDataCustomDatas(data, beatmapData, levelData)
@@ -221,6 +229,16 @@ namespace CustomJSONData.CustomBeatmap
                             });
                             break;
 
+                        // TODO: Need to add code to actually handle the vfxEventBoxGroups and fxEventsCollection
+                        case "vfxEventBoxGroups":
+                            throw new NotImplementedException();
+                            break;
+
+                        // TODO: Need to add code to actually handle the vfxEventBoxGroups and fxEventsCollection
+                        case "fxEventsCollection":
+                            throw new NotImplementedException();
+                            break;
+
                         case "useNormalEventsAsCompatibleEvents":
                             useNormalEventsAsCompatibleEvents = reader.ReadAsBoolean() ?? useNormalEventsAsCompatibleEvents;
                             break;
@@ -257,6 +275,8 @@ namespace CustomJSONData.CustomBeatmap
                 lightRotationEventBoxGroups.OrderBy(n => n).ToList(),
                 lightTranslationEventBoxGroups.OrderBy(n => n).ToList(),
                 new BasicEventTypesWithKeywords(basicEventTypesForKeyword),
+                vfxEventBoxGroups.OrderBy(n => n).ToList(),
+                fxEventsCollection,
                 useNormalEventsAsCompatibleEvents,
                 false,
                 customEvents.OrderBy(n => n).ToList(),

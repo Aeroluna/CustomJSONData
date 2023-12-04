@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BeatmapSaveDataVersion3;
+using static BeatmapSaveDataVersion3.BeatmapSaveData;
 
 namespace CustomJSONData.CustomBeatmap
 {
@@ -150,6 +151,8 @@ namespace CustomJSONData.CustomBeatmap
                 new List<BeatmapSaveData.LightRotationEventBoxGroup>(),
                 new List<BeatmapSaveData.LightTranslationEventBoxGroup>(),
                 basicEventTypesWithKeywords,
+                new List<FxEventBoxGroup>(),
+                new FxEventsCollection(),
                 true,
                 true,
                 customEvents,

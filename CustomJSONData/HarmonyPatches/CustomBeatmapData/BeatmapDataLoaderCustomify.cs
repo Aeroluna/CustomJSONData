@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -43,7 +44,9 @@ namespace CustomJSONData.HarmonyPatches
             EnvironmentKeywords environmentKeywords,
             EnvironmentLightGroups environmentLightGroups,
             DefaultEnvironmentEvents defaultEnvironmentEvents,
-            PlayerSpecificSettings playerSpecificSettings)
+            BeatmapLightshowSaveData defaultLightshowEventsSaveData,
+            PlayerSpecificSettings playerSpecificSettings,
+            Stopwatch stopwatch = null)
         {
             lock (_lock)
             {
@@ -52,7 +55,7 @@ namespace CustomJSONData.HarmonyPatches
                     new object[]
                     {
                         beatmapSaveData, beatmapDifficulty, startBpm, loadingForDesignatedEnvironment, environmentKeywords, environmentLightGroups,
-                        defaultEnvironmentEvents, playerSpecificSettings
+                        defaultEnvironmentEvents, defaultLightshowEventsSaveData, playerSpecificSettings, stopwatch
                     });
             }
         }
