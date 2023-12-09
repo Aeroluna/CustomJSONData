@@ -22,6 +22,14 @@ namespace CustomJSONData.HarmonyPatches
             CodeInstruction[] duped = matcher.InstructionsWithOffsets(0, 4).Select(n => new CodeInstruction(n)).ToArray();
             duped[2] = new CodeInstruction(OpCodes.Ldc_I4_2);
             return matcher.InsertAndAdvance(duped)
+
+                // cursed transpiler bug
+                // https://github.com/BepInEx/HarmonyX/issues/65
+                .End()
+                .MatchBack(false, new CodeMatch(OpCodes.Leave))
+                .Advance(1)
+                .Insert(new CodeInstruction(OpCodes.Nop))
+
                 .InstructionEnumeration();
         }
     }
