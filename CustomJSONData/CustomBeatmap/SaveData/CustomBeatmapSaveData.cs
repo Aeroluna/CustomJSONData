@@ -314,7 +314,7 @@ namespace CustomJSONData.CustomBeatmap
                 }
             }
 
-            Logger.Log($"[{path}] does not contain a version, falling back to [{fallback}].");
+            Plugin.Log.Debug($"[{path}] does not contain a version, falling back to [{fallback}]");
             return new Version(fallback);
         }
 

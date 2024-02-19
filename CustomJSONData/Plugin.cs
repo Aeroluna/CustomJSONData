@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using IPA;
 using JetBrains.Annotations;
+using Logger = IPA.Logging.Logger;
 
 namespace CustomJSONData
 {
@@ -12,10 +13,12 @@ namespace CustomJSONData
 #pragma warning disable CA1822
         [UsedImplicitly]
         [Init]
-        public Plugin(IPA.Logging.Logger l)
+        public Plugin(Logger pluginLogger)
         {
-            Logger.logger = l;
+            Log = pluginLogger;
         }
+
+        internal static Logger Log { get; private set; } = null!;
 
         [UsedImplicitly]
         [OnEnable]
