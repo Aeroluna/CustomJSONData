@@ -492,27 +492,27 @@ namespace CustomJSONData.CustomBeatmap
         private static void ConvertBeatmapSaveDataPreV2_5_0(Custom2_6_0AndEarlierBeatmapSaveData beatmapSaveData)
         {
             List<EventData> list = new(beatmapSaveData.events.Count);
-            foreach (EventData eventData in beatmapSaveData.events)
+            foreach (EventData origEventData in beatmapSaveData.events)
             {
-                EventData addedEventData = eventData;
+                EventData eventData = origEventData;
                 if (eventData.type == BeatmapSaveData.BeatmapEventType.Event10)
                 {
-                    addedEventData = new EventData(eventData.time, BeatmapSaveData.BeatmapEventType.BpmChange, eventData.value, eventData.floatValue, addedEventData.customData);
+                    eventData = new EventData(eventData.time, BeatmapSaveData.BeatmapEventType.BpmChange, eventData.value, eventData.floatValue, eventData.customData);
                 }
 
                 if (eventData.type == BeatmapSaveData.BeatmapEventType.BpmChange)
                 {
                     if (eventData.value != 0)
                     {
-                        addedEventData = new EventData(eventData.time, eventData.type, eventData.value, eventData.value, addedEventData.customData);
+                        eventData = new EventData(eventData.time, eventData.type, eventData.value, eventData.value, eventData.customData);
                     }
                 }
                 else
                 {
-                    addedEventData = new EventData(eventData.time, eventData.type, eventData.value, 1f, addedEventData.customData);
+                    eventData = new EventData(eventData.time, eventData.type, eventData.value, 1f, eventData.customData);
                 }
 
-                list.Add(addedEventData);
+                list.Add(eventData);
             }
 
             beatmapSaveData.events = list;
