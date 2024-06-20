@@ -127,6 +127,7 @@ dotnet_diagnostic.sa1402.severity = none
 dotnet_diagnostic.sa1413.severity = none
 dotnet_diagnostic.sa1313.severity = none
 dotnet_diagnostic.sa0001.severity = none
+dotnet_diagnostic.sa1300.severity = none
 
 [{*.har,*.inputactions,*.jsb2,*.jsb3,*.json,.babelrc,.eslintrc,.stylelintrc,bowerrc,jest.config}]
 indent_style = space
