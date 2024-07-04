@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !LATEST
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BeatmapSaveDataVersion3;
@@ -9,59 +10,61 @@ namespace CustomJSONData.CustomBeatmap
     // TODO: Deserialize JSON -> V3 rather than using a converter.
     public static class SaveData2_6_0Converter
     {
-        public static CustomBeatmapSaveData Convert2_6_0AndEarlier(
-            Version version,
-            string path,
-            CustomData beatmapData,
-            CustomData levelData)
+        public static Version3CustomBeatmapSaveData Convert2_6_0AndEarlier(string path, CustomData beatmapData, CustomData levelData)
         {
-            Custom2_6_0AndEarlierBeatmapSaveData oldSaveData = Custom2_6_0AndEarlierBeatmapSaveData.Deserialize(version, path);
+            Version2_6_0AndEarlierCustomBeatmapSaveData oldSaveData = Version2_6_0AndEarlierCustomBeatmapSaveData.Deserialize(path);
+
+            // wtf
+            if (new Version(oldSaveData.version).CompareTo(new Version("2.5.0")) < 0)
+            {
+                oldSaveData.ConvertBeatmapSaveDataPreV2_5_0();
+            }
 
             // notes
-            ILookup<bool, Custom2_6_0AndEarlierBeatmapSaveData.NoteData> notesSplit = oldSaveData.notes
+            ILookup<bool, Version2_6_0AndEarlierCustomBeatmapSaveData.NoteSaveData> notesSplit = oldSaveData.notes
+                .Cast<Version2_6_0AndEarlierCustomBeatmapSaveData.NoteSaveData>()
                 .OrderBy(n => n)
                 .ToLookup(n => n.type == BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.NoteType.Bomb);
             List<BeatmapSaveData.ColorNoteData> colorNotes = notesSplit[false]
-                .Select(n => new CustomBeatmapSaveData.ColorNoteData(
+                .Select(n => new Version3CustomBeatmapSaveData.ColorNoteSaveData(
                     n.time,
                     n.lineIndex,
                     (int)n.lineLayer,
                     BeatmapSaveData.GetNoteColorType(n.type),
                     n.cutDirection,
                     0,
-                    n.customData,
-                    true))
+                    n.customData))
                 .Cast<BeatmapSaveData.ColorNoteData>()
                 .ToList();
             List<BeatmapSaveData.BombNoteData> bombNotes = notesSplit[true]
-                .Select(n => new CustomBeatmapSaveData.BombNoteData(
+                .Select(n => new Version3CustomBeatmapSaveData.BombNoteSaveData(
                     n.time,
                     n.lineIndex,
                     (int)n.lineLayer,
-                    n.customData,
-                    true))
+                    n.customData))
                 .Cast<BeatmapSaveData.BombNoteData>()
                 .ToList();
 
             // obstacles
             List<BeatmapSaveData.ObstacleData> obstacles = oldSaveData.obstacles
+                .Cast<Version2_6_0AndEarlierCustomBeatmapSaveData.ObstacleSaveData>()
                 .OrderBy(n => n)
-                .Select(n => new CustomBeatmapSaveData.ObstacleData(
+                .Select(n => new Version3CustomBeatmapSaveData.ObstacleSaveData(
                     n.time,
                     n.lineIndex,
                     BeatmapSaveData.GetLayerForObstacleType(n.type),
                     n.duration,
                     n.width,
                     BeatmapSaveData.GetHeightForObstacleType(n.type),
-                    n.customData,
-                    true))
+                    n.customData))
                 .Cast<BeatmapSaveData.ObstacleData>()
                 .ToList();
 
             // sliders
             List<BeatmapSaveData.SliderData> sliders = oldSaveData.sliders
+                .Cast<Version2_6_0AndEarlierCustomBeatmapSaveData.SliderSaveData>()
                 .OrderBy(n => n)
-                .Select(n => new CustomBeatmapSaveData.SliderData(
+                .Select(n => new Version3CustomBeatmapSaveData.SliderSaveData(
                     BeatmapSaveData.GetNoteColorType(n.colorType),
                     n.time,
                     n.headLineIndex,
@@ -74,26 +77,26 @@ namespace CustomJSONData.CustomBeatmap
                     n.tailControlPointLengthMultiplier,
                     n.tailCutDirection,
                     n.sliderMidAnchorMode,
-                    n.customData,
-                    true))
+                    n.customData))
                 .Cast<BeatmapSaveData.SliderData>()
                 .ToList();
 
             // waypoints
             List<BeatmapSaveData.WaypointData> waypoints = oldSaveData.waypoints
+                .Cast<Version2_6_0AndEarlierCustomBeatmapSaveData.WaypointSaveData>()
                 .OrderBy(n => n)
-                .Select(n => new CustomBeatmapSaveData.WaypointData(
+                .Select(n => new Version3CustomBeatmapSaveData.WaypointSaveData(
                     n.time,
                     n.lineIndex,
                     (int)n.lineLayer,
                     n.offsetDirection,
-                    n.customData,
-                    true))
+                    n.customData))
                 .Cast<BeatmapSaveData.WaypointData>()
                 .ToList();
 
             // events
-            ILookup<int, Custom2_6_0AndEarlierBeatmapSaveData.EventData> eventsSplit = oldSaveData.events
+            ILookup<int, Version2_6_0AndEarlierCustomBeatmapSaveData.EventSaveData> eventsSplit = oldSaveData.events
+                .Cast<Version2_6_0AndEarlierCustomBeatmapSaveData.EventSaveData>()
                 .OrderBy(n => n)
                 .ToLookup(n => n.type switch
                 {
@@ -105,27 +108,26 @@ namespace CustomJSONData.CustomBeatmap
                 });
             List<BeatmapSaveData.ColorBoostEventData> colorBoosts =
                 eventsSplit[0]
-                    .Select(n => new CustomBeatmapSaveData.ColorBoostEventData(n.time, n.value == 1, n.customData, true))
+                    .Select(n => new Version3CustomBeatmapSaveData.ColorBoostEventSaveData(n.time, n.value == 1, n.customData))
                     .Cast<BeatmapSaveData.ColorBoostEventData>()
                     .ToList();
             List<BeatmapSaveData.RotationEventData> rotationEvents =
                 eventsSplit[1]
-                    .Select(n => new CustomBeatmapSaveData.RotationEventData(
+                    .Select(n => new Version3CustomBeatmapSaveData.RotationEventSaveData(
                         n.time,
                         n.type == BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.BeatmapEventType.Event14 ? BeatmapSaveData.ExecutionTime.Early : BeatmapSaveData.ExecutionTime.Late,
                         BeatmapSaveData.SpawnRotationForEventValue(n.value),
-                        n.customData,
-                        true))
+                        n.customData))
                     .Cast<BeatmapSaveData.RotationEventData>()
                     .ToList();
             List<BeatmapSaveData.BpmChangeEventData> bpmChanges =
                 eventsSplit[2]
-                    .Select(n => new CustomBeatmapSaveData.BpmChangeEventData(n.time, n.floatValue, n.customData, true))
+                    .Select(n => new Version3CustomBeatmapSaveData.BpmChangeEventSaveData(n.time, n.floatValue, n.customData))
                     .Cast<BeatmapSaveData.BpmChangeEventData>()
                     .ToList();
             List<BeatmapSaveData.BasicEventData> basicEvents =
                 eventsSplit[3]
-                    .Select(n => new CustomBeatmapSaveData.BasicEventData(n.time, n.type, n.value, n.floatValue, n.customData, true))
+                    .Select(n => new Version3CustomBeatmapSaveData.BasicEventSaveData(n.time, n.type, n.value, n.floatValue, n.customData))
                     .Cast<BeatmapSaveData.BasicEventData>()
                     .ToList();
 
@@ -136,12 +138,13 @@ namespace CustomJSONData.CustomBeatmap
                     .ToList());
 
             // custom events
-            List<CustomBeatmapSaveData.CustomEventData> customEvents = oldSaveData.customEvents
-                .Select(n => new CustomBeatmapSaveData.CustomEventData(n.time, n.type, n.data, true))
+            List<Version3CustomBeatmapSaveData.CustomEventSaveData> customEvents = oldSaveData.customEvents
+                .Select(n => new Version3CustomBeatmapSaveData.CustomEventSaveData(n.time, n.type, n.customData))
                 .ToList();
 
             // yay we're done
-            return new CustomBeatmapSaveData(
+            return new Version3CustomBeatmapSaveData(
+                oldSaveData.version,
                 bpmChanges,
                 rotationEvents,
                 colorNotes,
@@ -155,17 +158,17 @@ namespace CustomJSONData.CustomBeatmap
                 new List<BeatmapSaveData.LightColorEventBoxGroup>(),
                 new List<BeatmapSaveData.LightRotationEventBoxGroup>(),
                 new List<BeatmapSaveData.LightTranslationEventBoxGroup>(),
-#if LATEST
+#if V1_34_2
                 new List<BeatmapSaveData.FxEventBoxGroup>(),
                 new BeatmapSaveData.FxEventsCollection(),
 #endif
                 basicEventTypesWithKeywords,
                 true,
-                true,
                 customEvents,
-                oldSaveData.customData,
                 beatmapData,
-                levelData);
+                levelData,
+                oldSaveData.customData);
         }
     }
 }
+#endif

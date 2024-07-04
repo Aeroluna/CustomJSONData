@@ -1,5 +1,8 @@
-﻿using System;
+﻿#if !LATEST
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using BeatmapSaveDataVersion3;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
@@ -28,7 +31,8 @@ namespace CustomJSONData.HarmonyPatches
             CustomData levelData;
             if (standardLevelInfoSaveData is CustomLevelInfoSaveData customLevelInfoSaveData)
             {
-                beatmapData = customLevelInfoSaveData.beatmapCustomDatasByFilename[difficultyFileName];
+                IEnumerable<StandardLevelInfoSaveData.DifficultyBeatmap> difficultyBeatmaps = customLevelInfoSaveData.difficultyBeatmapSets.SelectMany(n => n.difficultyBeatmaps);
+                beatmapData = ((CustomLevelInfoSaveData.DifficultyBeatmap)difficultyBeatmaps.First(n => n.beatmapFilename == difficultyFileName)).customData;
                 levelData = customLevelInfoSaveData.customData;
             }
             else
@@ -39,7 +43,7 @@ namespace CustomJSONData.HarmonyPatches
 
             try
             {
-                CustomBeatmapSaveData saveData = CustomBeatmapSaveData.Deserialize(path, beatmapData, levelData);
+                Version3CustomBeatmapSaveData saveData = Version3CustomBeatmapSaveData.Deserialize(path, beatmapData, levelData);
                 __result = new Tuple<BeatmapSaveData, BeatmapDataBasicInfo>(
                     saveData,
                     BeatmapDataLoader.GetBeatmapDataBasicInfoFromSaveData(saveData));
@@ -54,3 +58,4 @@ namespace CustomJSONData.HarmonyPatches
         }
     }
 }
+#endif

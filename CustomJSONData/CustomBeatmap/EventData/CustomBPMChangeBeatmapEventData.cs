@@ -1,4 +1,6 @@
-﻿namespace CustomJSONData.CustomBeatmap
+﻿using System;
+
+namespace CustomJSONData.CustomBeatmap
 {
     public class CustomBPMChangeBeatmapEventData : BPMChangeBeatmapEventData, ICustomData, IVersionable
     {
@@ -6,20 +8,20 @@
             float time,
             float bpm,
             CustomData customData,
-            bool version260AndEarlier)
+            Version version)
             : base(time, bpm)
         {
             this.customData = customData;
-            version2_6_0AndEarlier = version260AndEarlier;
+            this.version = version;
         }
 
         public CustomData customData { get; }
 
-        public bool version2_6_0AndEarlier { get; }
+        public Version version { get; }
 
         public override BeatmapDataItem GetCopy()
         {
-            return new CustomBPMChangeBeatmapEventData(time, bpm, customData.Copy(), version2_6_0AndEarlier);
+            return new CustomBPMChangeBeatmapEventData(time, bpm, customData.Copy(), version);
         }
     }
 }

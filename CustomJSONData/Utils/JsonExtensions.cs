@@ -32,6 +32,7 @@ namespace CustomJSONData
             throw new JsonReaderException(reader.FormatMessage($"Input string [{result}] is not a valid integer."));
         }
 
+        [PublicAPI]
         public static Color ReadAsColor(this JsonReader reader)
         {
             float r = default;
@@ -107,6 +108,7 @@ namespace CustomJSONData
             return true;
         }
 
+        [PublicAPI]
         public static string[] ReadAsStringArray(this JsonReader reader, bool doThrow = true)
         {
             List<string> result = new();
@@ -128,6 +130,7 @@ namespace CustomJSONData
             return result.ToArray();
         }
 
+        [PublicAPI]
         public static int[] ReadAsIntArray(this JsonReader reader, bool doThrow = true)
         {
             List<int> result = new();

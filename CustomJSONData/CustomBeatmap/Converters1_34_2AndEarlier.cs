@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !LATEST
+using System;
 using BeatmapSaveDataVersion3;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -73,10 +74,12 @@ namespace CustomJSONData.CustomBeatmap
             protected VersionableBeatmapDataItemConverter(BpmProcessor bpmTimeProcessor, BeatmapSaveData beatmapSaveData)
                 : base(bpmTimeProcessor)
             {
-                Version2_6_0AndEarlier = beatmapSaveData is CustomBeatmapSaveData { version2_6_0AndEarlier: true };
+                Version = beatmapSaveData is Version3CustomBeatmapSaveData customBeatmapSaveData
+                    ? customBeatmapSaveData.beatmapVersion
+                    : VersionExtensions.version3;
             }
 
-            protected bool Version2_6_0AndEarlier { get; }
+            protected Version Version { get; }
         }
 
         public class CustomColorNoteConverter
@@ -97,7 +100,7 @@ namespace CustomJSONData.CustomBeatmap
                     _convertColorType(data.color),
                     data.cutDirection,
                     data.GetData(),
-                    Version2_6_0AndEarlier);
+                    Version);
                 noteData.SetCutDirectionAngleOffset(data.angleOffset);
                 return noteData;
             }
@@ -119,7 +122,7 @@ namespace CustomJSONData.CustomBeatmap
                     data.line,
                     _convertNoteLineLayer(data.layer),
                     data.GetData(),
-                    Version2_6_0AndEarlier);
+                    Version);
             }
         }
 
@@ -143,7 +146,7 @@ namespace CustomJSONData.CustomBeatmap
                     data.width,
                     data.height,
                     data.GetData(),
-                    Version2_6_0AndEarlier);
+                    Version);
             }
         }
 
@@ -174,16 +177,16 @@ namespace CustomJSONData.CustomBeatmap
                     data.tailCutDirection,
                     data.sliderMidAnchorMode,
                     data.GetData(),
-                    Version2_6_0AndEarlier);
+                    Version);
             }
         }
 
         public class CustomBurstSliderConverter
-            : BeatmapDataLoader.BeatmapDataItemConvertor<BeatmapObjectData, BeatmapSaveData.BurstSliderData, SliderData>
+            : VersionableBeatmapDataItemConverter<BeatmapObjectData, BeatmapSaveData.BurstSliderData, SliderData>
         {
             [UsedImplicitly]
-            public CustomBurstSliderConverter(BpmProcessor bpmTimeProcessor)
-                : base(bpmTimeProcessor)
+            public CustomBurstSliderConverter(BpmProcessor bpmTimeProcessor, BeatmapSaveData beatmapSaveData)
+                : base(bpmTimeProcessor, beatmapSaveData)
             {
             }
 
@@ -200,10 +203,10 @@ namespace CustomJSONData.CustomBeatmap
                     data.tailLine,
                     _convertNoteLineLayer(data.tailLayer),
                     _convertNoteLineLayer(data.tailLayer),
-                    NoteCutDirection.Any,
                     data.sliceCount,
                     data.squishAmount,
-                    data.GetData());
+                    data.GetData(),
+                    Version);
             }
         }
 
@@ -224,7 +227,7 @@ namespace CustomJSONData.CustomBeatmap
                     _convertNoteLineLayer(data.layer),
                     data.offsetDirection,
                     data.GetData(),
-                    Version2_6_0AndEarlier);
+                    Version);
             }
         }
 
@@ -243,7 +246,7 @@ namespace CustomJSONData.CustomBeatmap
                     BeatToTime(data.beat),
                     data.bpm,
                     data.GetData(),
-                    Version2_6_0AndEarlier);
+                    Version);
             }
         }
 
@@ -267,7 +270,7 @@ namespace CustomJSONData.CustomBeatmap
                     executionTime,
                     data.rotation,
                     data.GetData(),
-                    Version2_6_0AndEarlier);
+                    Version);
             }
         }
 
@@ -299,7 +302,7 @@ namespace CustomJSONData.CustomBeatmap
                     data.value,
                     data.floatValue,
                     data.GetData(),
-                    Version2_6_0AndEarlier);
+                    Version);
             }
         }
 
@@ -318,8 +321,9 @@ namespace CustomJSONData.CustomBeatmap
                     BeatToTime(data.beat),
                     data.boost,
                     data.GetData(),
-                    Version2_6_0AndEarlier);
+                    Version);
             }
         }
     }
 }
+#endif

@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 namespace CustomJSONData.CustomBeatmap
 {
     [HarmonyPatch(typeof(BeatmapData))]
-    public sealed class CustomBeatmapData : BeatmapData
+    public sealed class CustomBeatmapData : BeatmapData, ICustomData, IVersionable
     {
         private static readonly FieldAccessor<BeatmapData, BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>>.Accessor _beatmapDataItemsPerTypeAccessor =
             FieldAccessor<BeatmapData, BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>>.GetAccessor(nameof(_beatmapDataItemsPerTypeAndId));
@@ -18,28 +18,34 @@ namespace CustomJSONData.CustomBeatmap
 
         public CustomBeatmapData(
             int numberOfLines,
-            bool version2_6_0AndEarlier,
-            CustomData customData,
             CustomData beatmapCustomData,
-            CustomData levelCustomData)
+            CustomData levelCustomData,
+            CustomData customData,
+            Version version)
             : base(numberOfLines)
         {
             BeatmapData @this = this;
             _beatmapDataItemsPerTypeAccessor(ref @this) =
                 new CustomBeatmapDataSortedListForTypeAndIds(_beatmapDataItemsPerTypeAndId);
-            this.version2_6_0AndEarlier = version2_6_0AndEarlier;
-            this.customData = customData;
             this.beatmapCustomData = beatmapCustomData;
             this.levelCustomData = levelCustomData;
+            this.customData = customData;
+            this.version = version;
         }
-
-        public bool version2_6_0AndEarlier { get; }
 
         public CustomData customData { get; }
 
+        public Version version { get; }
+
+#if LATEST
+        public CustomData beatmapCustomData { get; internal set; }
+
+        public CustomData levelCustomData { get; internal set; }
+#else
         public CustomData beatmapCustomData { get; }
 
         public CustomData levelCustomData { get; }
+#endif
 
         [PublicAPI]
         public IReadOnlyList<BeatmapObjectData> beatmapObjectDatas => _beatmapObjectDatas;
@@ -93,10 +99,10 @@ namespace CustomJSONData.CustomBeatmap
 
             CustomBeatmapData beatmapData = new(
                 customBeatmapData._numberOfLines,
-                customBeatmapData.version2_6_0AndEarlier,
-                customBeatmapData.customData.Copy(),
                 customBeatmapData.beatmapCustomData.Copy(),
-                customBeatmapData.levelCustomData.Copy());
+                customBeatmapData.levelCustomData.Copy(),
+                customBeatmapData.customData.Copy(),
+                customBeatmapData.version);
             foreach (BeatmapDataItem beatmapDataItem in customBeatmapData.allBeatmapDataItems)
             {
                 BeatmapDataItem copy = beatmapDataItem.GetCopy();
@@ -130,10 +136,10 @@ namespace CustomJSONData.CustomBeatmap
             customBeatmapData._isCreatingFilteredCopy = true;
             CustomBeatmapData beatmapData = new(
                 customBeatmapData._numberOfLines,
-                customBeatmapData.version2_6_0AndEarlier,
-                customBeatmapData.customData.Copy(),
                 customBeatmapData.beatmapCustomData.Copy(),
-                customBeatmapData.levelCustomData.Copy());
+                customBeatmapData.levelCustomData.Copy(),
+                customBeatmapData.customData.Copy(),
+                customBeatmapData.version);
             foreach (BeatmapDataItem beatmapDataItem in customBeatmapData.allBeatmapDataItems)
             {
                 BeatmapDataItem copy = processDataItem(beatmapDataItem.GetCopy());

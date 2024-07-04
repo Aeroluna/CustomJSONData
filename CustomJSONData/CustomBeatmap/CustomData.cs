@@ -52,6 +52,20 @@ namespace CustomJSONData.CustomBeatmap
 
         public T? Get<T>(string key)
         {
+            // trygetvalue missing [notnullwhen] attribute :(
+            if (!TryGetValue(key, out object? value) || value == null)
+            {
+                return default;
+            }
+
+            Type resultType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+            if (IsNumericType(value))
+            {
+                return (T)Convert.ChangeType(value, resultType);
+            }
+
+            return (T)value;
+
             static bool IsNumericType(object o)
             {
                 switch (Type.GetTypeCode(o.GetType()))
@@ -72,20 +86,6 @@ namespace CustomJSONData.CustomBeatmap
                         return false;
                 }
             }
-
-            // trygetvalue missing [notnullwhen] attribute :(
-            if (!TryGetValue(key, out object? value) || value == null)
-            {
-                return default;
-            }
-
-            Type resultType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
-            if (IsNumericType(value))
-            {
-                return (T)Convert.ChangeType(value, resultType);
-            }
-
-            return (T)value;
         }
 
         [PublicAPI]

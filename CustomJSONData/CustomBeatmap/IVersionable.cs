@@ -1,7 +1,11 @@
-﻿namespace CustomJSONData.CustomBeatmap
+﻿using System;
+using JetBrains.Annotations;
+
+namespace CustomJSONData.CustomBeatmap
 {
     public interface IVersionable
     {
-        public bool version2_6_0AndEarlier { get; }
+        [PublicAPI]
+        public Version version { get; }
     }
 }

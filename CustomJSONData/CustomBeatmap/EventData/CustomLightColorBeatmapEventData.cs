@@ -6,11 +6,16 @@
             float time,
             int groupId,
             int elementId,
+#if !LATEST
             BeatmapEventTransitionType transitionType,
+#else
+            bool usePreviousValue,
+            EaseType easeType,
+#endif
             EnvironmentColorType colorType,
             float brightness,
             int strobeBeatFrequency,
-#if LATEST
+#if !V1_29_1
             float strobeBrightness,
             bool strobeFade,
 #endif
@@ -19,10 +24,15 @@
                 time,
                 groupId,
                 elementId,
+#if !LATEST
                 transitionType,
+#else
+                usePreviousValue,
+                easeType,
+#endif
                 colorType,
                 brightness,
-#if LATEST
+#if !V1_29_1
                 strobeBeatFrequency,
                 strobeBrightness,
                 strobeFade)
@@ -41,11 +51,16 @@
                 time,
                 groupId,
                 elementId,
+#if !LATEST
                 transitionType,
+#else
+                usePreviousValue,
+                easeType,
+#endif
                 colorType,
                 brightness,
                 strobeBeatFrequency,
-#if LATEST
+#if !V1_29_1
                 strobeBrightness,
                 strobeFade,
 #endif

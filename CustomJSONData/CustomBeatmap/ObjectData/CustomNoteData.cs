@@ -1,4 +1,6 @@
-﻿namespace CustomJSONData.CustomBeatmap
+﻿using System;
+
+namespace CustomJSONData.CustomBeatmap
 {
     public class CustomNoteData : NoteData, ICustomData, IVersionable
     {
@@ -18,7 +20,7 @@
             float cutDirectionAngleOffset,
             float cutSfxVolumeMultiplier,
             CustomData customData,
-            bool version260AndEarlier)
+            Version version)
                        : base(
                              time,
                              lineIndex,
@@ -36,19 +38,19 @@
                              cutSfxVolumeMultiplier)
         {
             this.customData = customData;
-            version2_6_0AndEarlier = version260AndEarlier;
+            this.version = version;
         }
 
         public CustomData customData { get; }
 
-        public bool version2_6_0AndEarlier { get; }
+        public Version version { get; }
 
         public static CustomNoteData CreateCustomBombNoteData(
             float time,
             int lineIndex,
             NoteLineLayer noteLineLayer,
             CustomData customData,
-            bool version260AndEarlier)
+            Version version)
         {
             return new CustomNoteData(
                 time,
@@ -66,7 +68,7 @@
                 0f,
                 1f,
                 customData,
-                version260AndEarlier);
+                version);
         }
 
         public static CustomNoteData CreateCustomBasicNoteData(
@@ -76,7 +78,7 @@
             ColorType colorType,
             NoteCutDirection cutDirection,
             CustomData customData,
-            bool version260AndEarlier)
+            Version version)
         {
             return new CustomNoteData(
                 time,
@@ -94,7 +96,7 @@
                 0f,
                 1f,
                 customData,
-                version260AndEarlier);
+                version);
         }
 
         public static CustomNoteData CreateCustomBurstSliderNoteData(
@@ -123,7 +125,7 @@
                 0f,
                 cutSfxVolumeMultiplier,
                 customData,
-                false);
+                VersionExtensions.version3);
         }
 
         public override BeatmapDataItem GetCopy()
@@ -144,7 +146,7 @@
                 cutDirectionAngleOffset,
                 cutSfxVolumeMultiplier,
                 customData.Copy(),
-                version2_6_0AndEarlier);
+                version);
         }
     }
 }

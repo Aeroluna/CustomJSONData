@@ -1,26 +1,29 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿#if !LATEST
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using BeatmapSaveDataVersion3;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+#if !V1_29_1
+using System.Diagnostics;
+#endif
 
 namespace CustomJSONData.HarmonyPatches
 {
     [HarmonyPatch(typeof(BeatmapDataLoader))]
-    internal static class BeatmapDataLoaderCustomify
+    internal static class BeatmapDataLoader1_34_2AndEarlierCustomify
     {
         private static readonly ConstructorInfo _beatmapDataCtor = AccessTools.FirstConstructor(typeof(BeatmapData), _ => true);
         private static readonly ConstructorInfo _bpmChangeCtor = AccessTools.FirstConstructor(typeof(BPMChangeBeatmapEventData), _ => true);
         private static readonly ConstructorInfo _bpmTimeProcessorCtor = AccessTools.FirstConstructor(typeof(BeatmapDataLoader.BpmTimeProcessor), _ => true);
-        private static readonly MethodInfo _createCustomBeatmapData = AccessTools.Method(typeof(BeatmapDataLoaderCustomify), nameof(CreateCustomBeatmapData));
-        private static readonly MethodInfo _createCustomBPMChangeData = AccessTools.Method(typeof(BeatmapDataLoaderCustomify), nameof(CreateCustomBPMChangeData));
-        private static readonly MethodInfo _addCustomEvent = AccessTools.Method(typeof(BeatmapDataLoaderCustomify), nameof(AddCustomEvents));
+        private static readonly MethodInfo _createCustomBeatmapData = AccessTools.Method(typeof(BeatmapDataLoader1_34_2AndEarlierCustomify), nameof(CreateCustomBeatmapData));
+        private static readonly MethodInfo _createCustomBPMChangeData = AccessTools.Method(typeof(BeatmapDataLoader1_34_2AndEarlierCustomify), nameof(CreateCustomBPMChangeData));
+        private static readonly MethodInfo _addCustomEvent = AccessTools.Method(typeof(BeatmapDataLoader1_34_2AndEarlierCustomify), nameof(AddCustomEvents));
 
         private static readonly MethodInfo _getBeatmapDataFromBeatmapSaveData = AccessTools.Method(typeof(BeatmapDataLoader), "GetBeatmapDataFromBeatmapSaveData");
-        private static readonly MethodInfo _lockedMethod = AccessTools.Method(typeof(BeatmapDataLoaderCustomify), nameof(GetBeatmapDataLock));
+        private static readonly MethodInfo _lockedMethod = AccessTools.Method(typeof(BeatmapDataLoader1_34_2AndEarlierCustomify), nameof(GetBeatmapDataLock));
         private static readonly object _lock = new();
 
         [HarmonyTranspiler]
@@ -44,7 +47,7 @@ namespace CustomJSONData.HarmonyPatches
             EnvironmentKeywords environmentKeywords,
             EnvironmentLightGroups environmentLightGroups,
             DefaultEnvironmentEvents defaultEnvironmentEvents,
-#if LATEST
+#if !V1_29_1
             BeatmapLightshowSaveData defaultLightshowEventsSaveData,
             PlayerSpecificSettings playerSpecificSettings,
             Stopwatch? stopwatch = null)
@@ -60,7 +63,7 @@ namespace CustomJSONData.HarmonyPatches
                     {
                         beatmapSaveData, beatmapDifficulty, startBpm, loadingForDesignatedEnvironment, environmentKeywords, environmentLightGroups,
                         defaultEnvironmentEvents,
-#if LATEST
+#if !V1_29_1
                         defaultLightshowEventsSaveData,
                         playerSpecificSettings,
                         stopwatch
@@ -73,7 +76,7 @@ namespace CustomJSONData.HarmonyPatches
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(BeatmapDataLoader.GetBeatmapDataFromBeatmapSaveData))]
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> Customify(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
                 .MatchForward(false, new CodeMatch(OpCodes.Newobj, _beatmapDataCtor))
@@ -99,7 +102,7 @@ namespace CustomJSONData.HarmonyPatches
                 .ReplaceVersionableConverter<BeatmapDataLoader.BombNoteConvertor, Converters.CustomBombNoteConverter>()
                 .ReplaceVersionableConverter<BeatmapDataLoader.ObstacleConvertor, Converters.CustomObstacleConverter>()
                 .ReplaceVersionableConverter<BeatmapDataLoader.SliderConvertor, Converters.CustomSliderConverter>()
-                .ReplaceConverter<BeatmapDataLoader.BurstSliderConvertor, Converters.CustomBurstSliderConverter>()
+                .ReplaceVersionableConverter<BeatmapDataLoader.BurstSliderConvertor, Converters.CustomBurstSliderConverter>()
                 .ReplaceVersionableConverter<BeatmapDataLoader.WaypointConvertor, Converters.CustomWaypointConverter>()
 
                 .ReplaceVersionableConverter<DataConvertor<BeatmapEventData>, Converters.CustomDataConverter<BeatmapEventData>>()
@@ -139,22 +142,22 @@ namespace CustomJSONData.HarmonyPatches
 
         private static BeatmapData CreateCustomBeatmapData(int numberOfLines, BeatmapSaveData beatmapSaveData)
         {
-            if (beatmapSaveData is CustomBeatmapSaveData customBeatmapSaveData)
+            if (beatmapSaveData is Version3CustomBeatmapSaveData customBeatmapSaveData)
             {
                 return new CustomBeatmapData(
                     numberOfLines,
-                    customBeatmapSaveData.version2_6_0AndEarlier,
-                    customBeatmapSaveData.customData,
                     customBeatmapSaveData.beatmapCustomData,
-                    customBeatmapSaveData.levelCustomData);
+                    customBeatmapSaveData.levelCustomData,
+                    customBeatmapSaveData.customData,
+                    customBeatmapSaveData.beatmapVersion);
             }
 
             return new CustomBeatmapData(
                 4,
-                false,
                 new CustomData(),
                 new CustomData(),
-                new CustomData());
+                new CustomData(),
+                VersionExtensions.version3);
         }
 
         private static BPMChangeBeatmapEventData CreateCustomBPMChangeData(float time, float bpm, BeatmapSaveData beatmapSaveData)
@@ -163,7 +166,7 @@ namespace CustomJSONData.HarmonyPatches
                 time,
                 bpm,
                 new CustomData(),
-                beatmapSaveData is CustomBeatmapSaveData { version2_6_0AndEarlier: true });
+                beatmapSaveData is Version3CustomBeatmapSaveData customBeatmapSaveData ? customBeatmapSaveData.beatmapVersion : VersionExtensions.version3);
         }
 
         private static void AddCustomEvents(
@@ -171,19 +174,20 @@ namespace CustomJSONData.HarmonyPatches
             CustomBeatmapData beatmapData,
             BeatmapSaveData saveData)
         {
-            if (saveData is not CustomBeatmapSaveData customSaveData)
+            if (saveData is not Version3CustomBeatmapSaveData customSaveData)
             {
                 return;
             }
 
-            foreach (CustomBeatmapSaveData.CustomEventData customEventSaveData in customSaveData.customEvents.OrderBy(n => n))
+            foreach (Version3CustomBeatmapSaveData.CustomEventSaveData customEventSaveData in customSaveData.customEvents.OrderBy(n => n))
             {
                 beatmapData.InsertCustomEventData(new CustomEventData(
                     timeProcessor.ConvertBeatToTime(customEventSaveData.beat),
                     customEventSaveData.type,
                     customEventSaveData.customData,
-                    customSaveData.version2_6_0AndEarlier));
+                    customSaveData.beatmapVersion));
             }
         }
     }
 }
+#endif

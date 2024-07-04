@@ -15,8 +15,7 @@ namespace CustomJSONData.HarmonyPatches
         private static readonly MethodInfo _insertCustomEvent = AccessTools.Method(typeof(StrobeFilterCustomify), nameof(InsertCustomEvent));
 
         private static readonly ConstructorInfo _eventDataCtor = AccessTools.FirstConstructor(typeof(BasicBeatmapEventData), _ => true);
-        private static readonly ConstructorInfo _customEventDataCtor = AccessTools.FirstConstructor(typeof(CustomBasicBeatmapEventData), _ => true);
-        private static readonly MethodInfo _getEventCustomData = AccessTools.Method(typeof(StrobeFilterCustomify), nameof(GetEventCustomData));
+        private static readonly MethodInfo _createEventData = AccessTools.Method(typeof(StrobeFilterCustomify), nameof(CreateCustomBeatmapEventData));
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(BeatmapDataStrobeFilterTransform.CreateTransformedData))]
@@ -27,9 +26,8 @@ namespace CustomJSONData.HarmonyPatches
                     false,
                     new CodeMatch(OpCodes.Newobj, _beatmapDataCtor))
                 .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Ldarg_0),
-                    new CodeInstruction(OpCodes.Call, _newCustomBeatmapData))
-                .RemoveInstruction()
+                    new CodeInstruction(OpCodes.Ldarg_0))
+                .Set(OpCodes.Call, _newCustomBeatmapData)
 
                 .MatchForward(
                     false,
@@ -43,42 +41,66 @@ namespace CustomJSONData.HarmonyPatches
                     new CodeMatch(OpCodes.Newobj, _eventDataCtor))
                 .Repeat(n => n
                     .InsertAndAdvance(
-                        new CodeInstruction(OpCodes.Ldloc_S, 5),
-                        new CodeInstruction(OpCodes.Call, _getEventCustomData))
-                    .SetOperandAndAdvance(_customEventDataCtor))
+#pragma warning disable SA1114
+#if LATEST
+                        new CodeInstruction(OpCodes.Ldloc_S, 7))
+#else
+                        new CodeInstruction(OpCodes.Ldloc_S, 5))
+#endif
+#pragma warning restore SA1114
+                    .SetAndAdvance(OpCodes.Call, _createEventData))
                 .InstructionEnumeration();
         }
 
-        private static CustomBeatmapData NewCustomBeatmapData(int numberOfLines, CustomBeatmapData beatmapData)
+        private static BeatmapData NewCustomBeatmapData(int numberOfLines, BeatmapData beatmapData)
         {
-            CustomBeatmapData newBeatmapData = new(
-                numberOfLines,
-                beatmapData.version2_6_0AndEarlier,
-                beatmapData.customData.Copy(),
-                beatmapData.beatmapCustomData.Copy(),
-                beatmapData.levelCustomData.Copy());
+            if (beatmapData is CustomBeatmapData customBeatmapData)
+            {
+                return new CustomBeatmapData(
+                    numberOfLines,
+                    customBeatmapData.beatmapCustomData.Copy(),
+                    customBeatmapData.levelCustomData.Copy(),
+                    customBeatmapData.customData.Copy(),
+                    customBeatmapData.version);
+            }
 
-            return newBeatmapData;
+            return new BeatmapData(numberOfLines);
         }
 
-        private static BeatmapDataItem InsertCustomEvent(BeatmapDataItem beatmapDataItem, CustomBeatmapData beatmapData)
+        private static BeatmapDataItem InsertCustomEvent(BeatmapDataItem beatmapDataItem, BeatmapData beatmapData)
         {
-            if (beatmapDataItem is CustomEventData customEventData)
+            if (beatmapData is CustomBeatmapData customBeatmapData &&
+                beatmapDataItem is CustomEventData customEventData)
             {
-                beatmapData.InsertCustomEventDataInOrder(customEventData);
+                customBeatmapData.InsertCustomEventDataInOrder(customEventData);
             }
 
             return beatmapDataItem; // return to stack
         }
 
-        private static CustomData GetEventCustomData(BeatmapEventData beatmapEventData)
+        private static BeatmapEventData CreateCustomBeatmapEventData(
+            float time,
+            BasicBeatmapEventType basicBeatmapEventType,
+            int value,
+            float floatValue,
+            BeatmapEventData beatmapEventData)
         {
-            if (beatmapEventData is ICustomData customBeatmapEventData)
+            if (beatmapEventData is CustomBasicBeatmapEventData customBeatmapEventData)
             {
-                return customBeatmapEventData.customData;
+                return new CustomBasicBeatmapEventData(
+                    time,
+                    basicBeatmapEventType,
+                    value,
+                    floatValue,
+                    customBeatmapEventData.customData,
+                    customBeatmapEventData.version);
             }
 
-            return new CustomData();
+            return new BasicBeatmapEventData(
+                time,
+                basicBeatmapEventType,
+                value,
+                floatValue);
         }
     }
 }

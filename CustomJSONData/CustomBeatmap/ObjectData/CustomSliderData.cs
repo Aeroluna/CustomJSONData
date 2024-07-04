@@ -1,4 +1,6 @@
-﻿namespace CustomJSONData.CustomBeatmap
+﻿using System;
+
+namespace CustomJSONData.CustomBeatmap
 {
     public class CustomSliderData : SliderData, ICustomData, IVersionable
     {
@@ -25,7 +27,7 @@
             int sliceCount,
             float squishAmount,
             CustomData customData,
-            bool version260AndEarlier)
+            Version version)
             : base(
                 sliderType,
                 colorType,
@@ -50,12 +52,12 @@
                 squishAmount)
         {
             this.customData = customData;
-            version2_6_0AndEarlier = version260AndEarlier;
+            this.version = version;
         }
 
         public CustomData customData { get; }
 
-        public bool version2_6_0AndEarlier { get; }
+        public Version version { get; }
 
         public static SliderData CreateCustomSliderData(
             ColorType colorType,
@@ -73,7 +75,7 @@
             NoteCutDirection tailCutDirection,
             SliderMidAnchorMode midAnchorMode,
             CustomData customData,
-            bool version260AndEarlier)
+            Version version)
         {
             return new CustomSliderData(
                 Type.Normal,
@@ -98,7 +100,7 @@
                 0,
                 1,
                 customData,
-                version260AndEarlier);
+                version);
         }
 
         public static SliderData CreateCustomBurstSliderData(
@@ -112,10 +114,10 @@
             int tailLineIndex,
             NoteLineLayer tailLineLayer,
             NoteLineLayer tailBeforeJumpLineLayer,
-            NoteCutDirection tailCutDirection,
             int sliceCount,
             float squishAmount,
-            CustomData customData)
+            CustomData customData,
+            Version version)
         {
             return new CustomSliderData(
                 Type.Burst,
@@ -134,13 +136,13 @@
                 tailLineLayer,
                 tailBeforeJumpLineLayer,
                 0,
-                tailCutDirection,
+                NoteCutDirection.Any,
                 0,
                 SliderMidAnchorMode.Straight,
                 sliceCount,
                 squishAmount,
                 customData,
-                false);
+                version);
         }
 
         public override BeatmapDataItem GetCopy()
@@ -168,7 +170,7 @@
                 sliceCount,
                 squishAmount,
                 customData.Copy(),
-                version2_6_0AndEarlier);
+                version);
         }
     }
 }

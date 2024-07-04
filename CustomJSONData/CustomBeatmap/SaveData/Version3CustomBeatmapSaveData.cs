@@ -3,13 +3,79 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BeatmapSaveDataVersion3;
-using HarmonyLib;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+#if LATEST
+using _Axis = BeatmapSaveDataCommon.Axis;
+using _BasicEventData = BeatmapSaveDataVersion3.BasicEventData;
+using _BasicEventTypesWithKeywords = BeatmapSaveDataCommon.BasicEventTypesWithKeywords;
+using _BeatmapEventType = BeatmapSaveDataCommon.BeatmapEventType;
+using _BombNoteData = BeatmapSaveDataVersion3.BombNoteData;
+using _BpmChangeEventData = BeatmapSaveDataVersion3.BpmChangeEventData;
+using _BurstSliderData = BeatmapSaveDataVersion3.BurstSliderData;
+using _ColorBoostEventData = BeatmapSaveDataVersion3.ColorBoostEventData;
+using _ColorNoteData = BeatmapSaveDataVersion3.ColorNoteData;
+using _DistributionParamType = BeatmapSaveDataCommon.DistributionParamType;
+using _EaseType = BeatmapSaveDataCommon.EaseType;
+using _EnvironmentColorType = BeatmapSaveDataCommon.EnvironmentColorType;
+using _ExecutionTime = BeatmapSaveDataCommon.ExecutionTime;
+using _IndexFilter = BeatmapSaveDataVersion3.IndexFilter;
+using _IndexFilterLimitAlsoAffectsType = BeatmapSaveDataCommon.IndexFilterLimitAlsoAffectsType;
+using _IndexFilterRandomType = BeatmapSaveDataCommon.IndexFilterRandomType;
+using _IndexFilterType = BeatmapSaveDataCommon.IndexFilterType;
+using _LightColorBaseData = BeatmapSaveDataVersion3.LightColorBaseData;
+using _LightColorEventBoxGroup = BeatmapSaveDataVersion3.LightColorEventBoxGroup;
+using _LightRotationBaseData = BeatmapSaveDataVersion3.LightRotationBaseData;
+using _LightRotationEventBoxGroup = BeatmapSaveDataVersion3.LightRotationEventBoxGroup;
+using _LightTranslationBaseData = BeatmapSaveDataVersion3.LightTranslationBaseData;
+using _NoteColorType = BeatmapSaveDataCommon.NoteColorType;
+using _NoteCutDirection = BeatmapSaveDataCommon.NoteCutDirection;
+using _NoteLineLayer = BeatmapSaveDataCommon.NoteLineLayer;
+using _ObstacleData = BeatmapSaveDataVersion3.ObstacleData;
+using _OffsetDirection = BeatmapSaveDataCommon.OffsetDirection;
+using _RotationDirection = BeatmapSaveDataCommon.RotationDirection;
+using _RotationEventData = BeatmapSaveDataVersion3.RotationEventData;
+using _SliderData = BeatmapSaveDataVersion3.SliderData;
+using _SliderMidAnchorMode = BeatmapSaveDataCommon.SliderMidAnchorMode;
+using _WaypointData = BeatmapSaveDataVersion3.WaypointData;
+#else
+using _Axis = BeatmapSaveDataVersion3.BeatmapSaveData.Axis;
+using _BasicEventData = BeatmapSaveDataVersion3.BeatmapSaveData.BasicEventData;
+using _BasicEventTypesWithKeywords = BeatmapSaveDataVersion3.BeatmapSaveData.BasicEventTypesWithKeywords;
+using _BeatmapEventType = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.BeatmapEventType;
+using _BombNoteData = BeatmapSaveDataVersion3.BeatmapSaveData.BombNoteData;
+using _BpmChangeEventData = BeatmapSaveDataVersion3.BeatmapSaveData.BpmChangeEventData;
+using _BurstSliderData = BeatmapSaveDataVersion3.BeatmapSaveData.BurstSliderData;
+using _ColorBoostEventData = BeatmapSaveDataVersion3.BeatmapSaveData.ColorBoostEventData;
+using _ColorNoteData = BeatmapSaveDataVersion3.BeatmapSaveData.ColorNoteData;
+using _DistributionParamType = BeatmapSaveDataVersion3.BeatmapSaveData.EventBox.DistributionParamType;
+using _EaseType = BeatmapSaveDataVersion3.BeatmapSaveData.EaseType;
+using _EnvironmentColorType = BeatmapSaveDataVersion3.BeatmapSaveData.EnvironmentColorType;
+using _ExecutionTime = BeatmapSaveDataVersion3.BeatmapSaveData.ExecutionTime;
+using _IndexFilter = BeatmapSaveDataVersion3.BeatmapSaveData.IndexFilter;
+using _IndexFilterLimitAlsoAffectsType = BeatmapSaveDataVersion3.BeatmapSaveData.IndexFilterLimitAlsoAffectsType;
+using _IndexFilterRandomType = BeatmapSaveDataVersion3.BeatmapSaveData.IndexFilterRandomType;
+using _IndexFilterType = BeatmapSaveDataVersion3.BeatmapSaveData.IndexFilter.IndexFilterType;
+using _LightColorBaseData = BeatmapSaveDataVersion3.BeatmapSaveData.LightColorBaseData;
+using _LightColorEventBoxGroup = BeatmapSaveDataVersion3.BeatmapSaveData.LightColorEventBoxGroup;
+using _LightRotationBaseData = BeatmapSaveDataVersion3.BeatmapSaveData.LightRotationBaseData;
+using _LightRotationEventBoxGroup = BeatmapSaveDataVersion3.BeatmapSaveData.LightRotationEventBoxGroup;
+using _LightTranslationBaseData = BeatmapSaveDataVersion3.BeatmapSaveData.LightTranslationBaseData;
+using _NoteColorType = BeatmapSaveDataVersion3.BeatmapSaveData.NoteColorType;
+using _NoteCutDirection = NoteCutDirection;
+using _NoteLineLayer = NoteLineLayer;
+using _ObstacleData = BeatmapSaveDataVersion3.BeatmapSaveData.ObstacleData;
+using _OffsetDirection = OffsetDirection;
+using _RotationDirection = BeatmapSaveDataVersion3.BeatmapSaveData.LightRotationBaseData.RotationDirection;
+using _RotationEventData = BeatmapSaveDataVersion3.BeatmapSaveData.RotationEventData;
+using _SliderData = BeatmapSaveDataVersion3.BeatmapSaveData.SliderData;
+using _SliderMidAnchorMode = SliderMidAnchorMode;
+using _WaypointData = BeatmapSaveDataVersion3.BeatmapSaveData.WaypointData;
+#endif
 
 namespace CustomJSONData.CustomBeatmap
 {
-    public partial class CustomBeatmapSaveData : BeatmapSaveData
+    public partial class Version3CustomBeatmapSaveData : BeatmapSaveData
     {
         // worst naming scheme ever
         private const string _beat = "b";
@@ -28,33 +94,33 @@ namespace CustomJSONData.CustomBeatmap
 
         private const string _customData = "customData";
 
-        private static readonly Version _version2_6_0 = (Version)AccessTools.Field(typeof(BeatmapSaveData), "version2_6_0").GetValue(null);
-
-        public CustomBeatmapSaveData(
-            List<BeatmapSaveData.BpmChangeEventData> bpmEvents,
-            List<BeatmapSaveData.RotationEventData> rotationEvents,
-            List<BeatmapSaveData.ColorNoteData> colorNotes,
-            List<BeatmapSaveData.BombNoteData> bombNotes,
-            List<BeatmapSaveData.ObstacleData> obstacles,
-            List<BeatmapSaveData.SliderData> sliders,
-            List<BeatmapSaveData.BurstSliderData> burstSliders,
-            List<BeatmapSaveData.WaypointData> waypoints,
-            List<BeatmapSaveData.BasicEventData> basicBeatmapEvents,
-            List<BeatmapSaveData.ColorBoostEventData> colorBoostBeatmapEvents,
-            List<BeatmapSaveData.LightColorEventBoxGroup> lightColorEventBoxGroups,
-            List<BeatmapSaveData.LightRotationEventBoxGroup> lightRotationEventBoxGroups,
+        public Version3CustomBeatmapSaveData(
+            string version,
+            List<_BpmChangeEventData> bpmEvents,
+            List<_RotationEventData> rotationEvents,
+            List<_ColorNoteData> colorNotes,
+            List<_BombNoteData> bombNotes,
+            List<_ObstacleData> obstacles,
+            List<_SliderData> sliders,
+            List<_BurstSliderData> burstSliders,
+            List<_WaypointData> waypoints,
+            List<_BasicEventData> basicBeatmapEvents,
+            List<_ColorBoostEventData> colorBoostBeatmapEvents,
+            List<_LightColorEventBoxGroup> lightColorEventBoxGroups,
+            List<_LightRotationEventBoxGroup> lightRotationEventBoxGroups,
             List<LightTranslationEventBoxGroup> lightTranslationEventBoxGroups,
-#if LATEST
+#if !V1_29_1
             List<FxEventBoxGroup> vfxEventBoxGroup,
             FxEventsCollection fxEventsCollection,
 #endif
-            BasicEventTypesWithKeywords basicEventTypesWithKeywords,
+            _BasicEventTypesWithKeywords basicEventTypesWithKeywords,
             bool useNormalEventsAsCompatibleEvents,
-            bool version2_6_0AndEarlier,
-            List<CustomEventData> customEvents,
-            CustomData customData,
+            List<CustomEventSaveData> customEvents,
+#if !LATEST
             CustomData beatmapCustomData,
-            CustomData levelCustomData)
+            CustomData levelCustomData,
+#endif
+            CustomData customData)
             : base(
                 bpmEvents,
                 rotationEvents,
@@ -69,67 +135,80 @@ namespace CustomJSONData.CustomBeatmap
                 lightColorEventBoxGroups,
                 lightRotationEventBoxGroups,
                 lightTranslationEventBoxGroups,
-#if LATEST
+#if !V1_29_1
                 vfxEventBoxGroup,
                 fxEventsCollection,
 #endif
                 basicEventTypesWithKeywords,
                 useNormalEventsAsCompatibleEvents)
         {
-            this.version2_6_0AndEarlier = version2_6_0AndEarlier;
-            this.customEvents = customEvents;
-            this.customData = customData;
+            this.version = version;
+#if !LATEST
+            beatmapVersion = new Version(version);
             this.beatmapCustomData = beatmapCustomData;
             this.levelCustomData = levelCustomData;
+#endif
+            this.customEvents = customEvents;
+            this.customData = customData;
         }
 
-        public bool version2_6_0AndEarlier { get; }
-
-        public List<CustomEventData> customEvents { get; }
+        public List<CustomEventSaveData> customEvents { get; }
 
         public CustomData customData { get; }
+
+#if !LATEST
+        public Version beatmapVersion { get; }
 
         public CustomData beatmapCustomData { get; }
 
         public CustomData levelCustomData { get; }
+#endif
 
-        public static CustomBeatmapSaveData Deserialize(
-            string path,
-            CustomData beatmapData,
-            CustomData levelData)
+#if LATEST
+        public static Version3CustomBeatmapSaveData Deserialize(string path)
+#else
+        public static Version3CustomBeatmapSaveData Deserialize(string path, CustomData beatmapCustomData, CustomData levelCustomData)
+#endif
         {
-            Version version = GetVersionFromPath(path);
+#if LATEST
+            string version = string.Empty;
+#else
+            string version = GetVersionFromPath(path);
 
-            if (version.CompareTo(_version2_6_0) <= 0)
+            if (new Version(version).CompareTo(version2_6_0) <= 0)
             {
-                return SaveData2_6_0Converter.Convert2_6_0AndEarlier(
-                    version, path, beatmapData, levelData);
+                return SaveData2_6_0Converter.Convert2_6_0AndEarlier(path, beatmapCustomData, levelCustomData);
             }
+#endif
 
             // lets do this
-            List<BeatmapSaveData.BpmChangeEventData> bpmEvents = new();
-            List<BeatmapSaveData.RotationEventData> rotationEvents = new();
-            List<BeatmapSaveData.ColorNoteData> colorNotes = new();
-            List<BeatmapSaveData.BombNoteData> bombNotes = new();
-            List<BeatmapSaveData.ObstacleData> obstacles = new();
-            List<BeatmapSaveData.SliderData> sliders = new();
-            List<BeatmapSaveData.BurstSliderData> burstSliders = new();
-            List<BeatmapSaveData.WaypointData> waypoints = new();
-            List<BeatmapSaveData.BasicEventData> basicBeatmapEvents = new();
-            List<BeatmapSaveData.ColorBoostEventData> colorBoostBeatmapEvents = new();
-            List<BeatmapSaveData.LightColorEventBoxGroup> lightColorEventBoxGroups = new();
-            List<BeatmapSaveData.LightRotationEventBoxGroup> lightRotationEventBoxGroups = new();
+            List<_BpmChangeEventData> bpmEvents = new();
+            List<_RotationEventData> rotationEvents = new();
+            List<_ColorNoteData> colorNotes = new();
+            List<_BombNoteData> bombNotes = new();
+            List<_ObstacleData> obstacles = new();
+            List<_SliderData> sliders = new();
+            List<_BurstSliderData> burstSliders = new();
+            List<_WaypointData> waypoints = new();
+            List<_BasicEventData> basicBeatmapEvents = new();
+            List<_ColorBoostEventData> colorBoostBeatmapEvents = new();
+            List<_LightColorEventBoxGroup> lightColorEventBoxGroups = new();
+            List<_LightRotationEventBoxGroup> lightRotationEventBoxGroups = new();
             List<LightTranslationEventBoxGroup> lightTranslationEventBoxGroups = new();
-#if LATEST
+#if !V1_29_1
             List<FxEventBoxGroup> vfxEventBoxGroups = new();
             FxEventsCollection? fxEventsCollection = null;
 #endif
-            List<BasicEventTypesWithKeywords.BasicEventTypesForKeyword> basicEventTypesForKeyword = new();
+            List<_BasicEventTypesWithKeywords.BasicEventTypesForKeyword> basicEventTypesForKeyword = new();
             bool useNormalEventsAsCompatibleEvents = default;
             CustomData data = new();
-            List<CustomEventData> customEvents = new();
+            List<CustomEventSaveData> customEvents = new();
 
+#if LATEST
+            using JsonTextReader reader = new(new StringReader(path));
+#else
             using JsonTextReader reader = new(new StreamReader(path));
+#endif
 
             object[] inputs =
             {
@@ -150,7 +229,9 @@ namespace CustomJSONData.CustomBeatmap
                 basicEventTypesForKeyword,
                 useNormalEventsAsCompatibleEvents,
                 customEvents,
-                new SaveDataCustomDatas(data, beatmapData, levelData)
+#if !LATEST
+                new SaveDataCustomDatas(beatmapCustomData, levelCustomData, data)
+#endif
             };
 
             while (reader.Read())
@@ -162,6 +243,12 @@ namespace CustomJSONData.CustomBeatmap
                         default:
                             reader.Skip();
                             break;
+
+#if LATEST
+                        case "_version":
+                            version = reader.ReadAsString() ?? version;
+                            break;
+#endif
 
                         case "bpmEvents":
                             DeserializeBpmChangeArray(reader, bpmEvents);
@@ -215,7 +302,7 @@ namespace CustomJSONData.CustomBeatmap
                             DeserializeLightTranslationEventBoxGroupArray(reader, lightTranslationEventBoxGroups);
                             break;
 
-#if LATEST
+#if !V1_29_1
                         case "vfxEventBoxGroups":
                             DeserializeFxEventBoxGroupArray(reader, vfxEventBoxGroups);
                             break;
@@ -263,7 +350,8 @@ namespace CustomJSONData.CustomBeatmap
                 }
             }
 
-            return new CustomBeatmapSaveData(
+            return new Version3CustomBeatmapSaveData(
+                version,
                 bpmEvents.OrderBy(n => n).ToList(),
                 rotationEvents.OrderBy(n => n).ToList(),
                 colorNotes.OrderBy(n => n).ToList(),
@@ -277,20 +365,22 @@ namespace CustomJSONData.CustomBeatmap
                 lightColorEventBoxGroups.OrderBy(n => n).ToList(),
                 lightRotationEventBoxGroups.OrderBy(n => n).ToList(),
                 lightTranslationEventBoxGroups.OrderBy(n => n).ToList(),
-#if LATEST
+#if !V1_29_1
                 vfxEventBoxGroups.OrderBy(n => n).ToList(),
                 fxEventsCollection ?? new FxEventsCollection(),
 #endif
-                new BasicEventTypesWithKeywords(basicEventTypesForKeyword),
+                new _BasicEventTypesWithKeywords(basicEventTypesForKeyword),
                 useNormalEventsAsCompatibleEvents,
-                false,
                 customEvents.OrderBy(n => n).ToList(),
-                data,
-                beatmapData,
-                levelData);
+#if !LATEST
+                beatmapCustomData,
+                levelCustomData,
+#endif
+                data);
         }
 
-        public static Version GetVersionFromPath(string path)
+#if !LATEST
+        public static string GetVersionFromPath(string path)
         {
             // SongCore has a fallback so i guess i do too
             const string fallback = "2.0.0";
@@ -309,16 +399,17 @@ namespace CustomJSONData.CustomBeatmap
 
                         case "version":
                         case "_version":
-                            return new Version(reader.ReadAsString()!); // ctor has null check
+                            return reader.ReadAsString()!; // ctor has null check
                     }
                 }
             }
 
             Plugin.Log.Debug($"[{path}] does not contain a version, falling back to [{fallback}]");
-            return new Version(fallback);
+            return fallback;
         }
+#endif
 
-        public static void DeserializeCustomEventArray(JsonReader reader, List<CustomEventData> list)
+        public static void DeserializeCustomEventArray(JsonReader reader, List<CustomEventSaveData> list)
         {
             reader.ReadArray(
                 () =>
@@ -346,12 +437,12 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new CustomEventData(beat, type, data)));
+                }).Finish(() => list.Add(new CustomEventSaveData(beat, type, data)));
             },
                 false);
         }
 
-        public static void DeserializeBpmChangeArray(JsonReader reader, List<BeatmapSaveData.BpmChangeEventData> list)
+        public static void DeserializeBpmChangeArray(JsonReader reader, List<_BpmChangeEventData> list)
         {
             reader.ReadArray(() =>
             {
@@ -378,16 +469,16 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new BpmChangeEventData(beat, bpm, data)));
+                }).Finish(() => list.Add(new BpmChangeEventSaveData(beat, bpm, data)));
             });
         }
 
-        public static void DeserializeRotationArray(JsonReader reader, List<BeatmapSaveData.RotationEventData> list)
+        public static void DeserializeRotationArray(JsonReader reader, List<_RotationEventData> list)
         {
             reader.ReadArray(() =>
             {
                 float beat = default;
-                ExecutionTime executionTime = default;
+                _ExecutionTime executionTime = default;
                 float rotation = default;
                 CustomData data = new();
                 return reader.ReadObject(objectName =>
@@ -399,7 +490,7 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "e":
-                            executionTime = (ExecutionTime?)reader.ReadAsInt32Safe() ?? executionTime;
+                            executionTime = (_ExecutionTime?)reader.ReadAsInt32Safe() ?? executionTime;
                             break;
 
                         case "r":
@@ -414,19 +505,19 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new RotationEventData(beat, executionTime, rotation, data)));
+                }).Finish(() => list.Add(new RotationEventSaveData(beat, executionTime, rotation, data)));
             });
         }
 
-        public static void DeserializeColorNoteArray(JsonReader reader, List<BeatmapSaveData.ColorNoteData> list)
+        public static void DeserializeColorNoteArray(JsonReader reader, List<_ColorNoteData> list)
         {
             reader.ReadArray(() =>
             {
                 float beat = default;
                 int line = default;
                 int layer = default;
-                NoteColorType color = default;
-                NoteCutDirection cutDirection = default;
+                _NoteColorType color = default;
+                _NoteCutDirection cutDirection = default;
                 int angleOffset = default;
                 CustomData data = new();
                 return reader.ReadObject(objectName =>
@@ -446,11 +537,11 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case _colorType:
-                            color = (NoteColorType?)reader.ReadAsInt32Safe() ?? color;
+                            color = (_NoteColorType?)reader.ReadAsInt32Safe() ?? color;
                             break;
 
                         case _cutDirection:
-                            cutDirection = (NoteCutDirection?)reader.ReadAsInt32Safe() ?? cutDirection;
+                            cutDirection = (_NoteCutDirection?)reader.ReadAsInt32Safe() ?? cutDirection;
                             break;
 
                         case "a":
@@ -465,11 +556,11 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new ColorNoteData(beat, line, layer, color, cutDirection, angleOffset, data)));
+                }).Finish(() => list.Add(new ColorNoteSaveData(beat, line, layer, color, cutDirection, angleOffset, data)));
             });
         }
 
-        public static void DeserializeBombNoteArray(JsonReader reader, List<BeatmapSaveData.BombNoteData> list)
+        public static void DeserializeBombNoteArray(JsonReader reader, List<_BombNoteData> list)
         {
             reader.ReadArray(() =>
             {
@@ -501,11 +592,11 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new BombNoteData(beat, line, layer, data)));
+                }).Finish(() => list.Add(new BombNoteSaveData(beat, line, layer, data)));
             });
         }
 
-        public static void DeserializeObstacleArray(JsonReader reader, List<BeatmapSaveData.ObstacleData> list)
+        public static void DeserializeObstacleArray(JsonReader reader, List<_ObstacleData> list)
         {
             reader.ReadArray(() =>
             {
@@ -552,33 +643,33 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new ObstacleData(beat, line, layer, duration, width, height, data)));
+                }).Finish(() => list.Add(new ObstacleSaveData(beat, line, layer, duration, width, height, data)));
             });
         }
 
-        public static void DeserializeSliderArray(JsonReader reader, List<BeatmapSaveData.SliderData> list)
+        public static void DeserializeSliderArray(JsonReader reader, List<_SliderData> list)
         {
             reader.ReadArray(() =>
             {
-                NoteColorType color = default;
+                _NoteColorType color = default;
                 float headBeat = default;
                 int headLine = default;
                 int headLayer = default;
                 float headControlPointLengthMultiplier = default;
-                NoteCutDirection headCutDirection = default;
+                _NoteCutDirection headCutDirection = default;
                 float tailBeat = default;
                 int tailLine = default;
                 int tailLayer = default;
                 float tailControlPointLengthMultiplier = default;
-                NoteCutDirection tailCutDirection = default;
-                SliderMidAnchorMode sliderMidAnchorMode = default;
+                _NoteCutDirection tailCutDirection = default;
+                _SliderMidAnchorMode sliderMidAnchorMode = default;
                 CustomData data = new();
                 return reader.ReadObject(objectName =>
                 {
                     switch (objectName)
                     {
                         case _colorType:
-                            color = (NoteColorType?)reader.ReadAsInt32Safe() ?? color;
+                            color = (_NoteColorType?)reader.ReadAsInt32Safe() ?? color;
                             break;
 
                         case _beat:
@@ -599,7 +690,7 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case _cutDirection:
-                            headCutDirection = (NoteCutDirection?)reader.ReadAsInt32Safe() ?? headCutDirection;
+                            headCutDirection = (_NoteCutDirection?)reader.ReadAsInt32Safe() ?? headCutDirection;
                             break;
 
                         case _tailBeat:
@@ -620,11 +711,11 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "tc":
-                            tailCutDirection = (NoteCutDirection?)reader.ReadAsInt32Safe() ?? tailCutDirection;
+                            tailCutDirection = (_NoteCutDirection?)reader.ReadAsInt32Safe() ?? tailCutDirection;
                             break;
 
                         case "m":
-                            sliderMidAnchorMode = (SliderMidAnchorMode?)reader.ReadAsInt32Safe() ?? sliderMidAnchorMode;
+                            sliderMidAnchorMode = (_SliderMidAnchorMode?)reader.ReadAsInt32Safe() ?? sliderMidAnchorMode;
                             break;
 
                         case _customData:
@@ -635,7 +726,7 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new SliderData(
+                }).Finish(() => list.Add(new SliderSaveData(
                     color,
                     headBeat,
                     headLine,
@@ -652,15 +743,15 @@ namespace CustomJSONData.CustomBeatmap
             });
         }
 
-        public static void DeserializeBurstSliderArray(JsonReader reader, List<BeatmapSaveData.BurstSliderData> list)
+        public static void DeserializeBurstSliderArray(JsonReader reader, List<_BurstSliderData> list)
         {
             reader.ReadArray(() =>
             {
-                NoteColorType color = default;
+                _NoteColorType color = default;
                 float headBeat = default;
                 int headLine = default;
                 int headLayer = default;
-                NoteCutDirection headCutDirection = default;
+                _NoteCutDirection headCutDirection = default;
                 float tailBeat = default;
                 int tailLine = default;
                 int tailLayer = default;
@@ -672,7 +763,7 @@ namespace CustomJSONData.CustomBeatmap
                     switch (objectName)
                     {
                         case _colorType:
-                            color = (NoteColorType?)reader.ReadAsInt32Safe() ?? color;
+                            color = (_NoteColorType?)reader.ReadAsInt32Safe() ?? color;
                             break;
 
                         case _beat:
@@ -688,7 +779,7 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case _cutDirection:
-                            headCutDirection = (NoteCutDirection?)reader.ReadAsInt32Safe() ?? headCutDirection;
+                            headCutDirection = (_NoteCutDirection?)reader.ReadAsInt32Safe() ?? headCutDirection;
                             break;
 
                         case _tailBeat:
@@ -719,7 +810,7 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new BurstSliderData(
+                }).Finish(() => list.Add(new BurstSliderSaveData(
                     color,
                     headBeat,
                     headLine,
@@ -734,14 +825,14 @@ namespace CustomJSONData.CustomBeatmap
             });
         }
 
-        public static void DeserializeWaypointArray(JsonReader reader, List<BeatmapSaveData.WaypointData> list)
+        public static void DeserializeWaypointArray(JsonReader reader, List<_WaypointData> list)
         {
             reader.ReadArray(() =>
             {
                 float beat = default;
                 int line = default;
                 int layer = default;
-                OffsetDirection offsetDirection = default;
+                _OffsetDirection offsetDirection = default;
                 CustomData data = new();
                 return reader.ReadObject(objectName =>
                 {
@@ -760,7 +851,7 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case _cutDirection:
-                            offsetDirection = (OffsetDirection?)reader.ReadAsInt32Safe() ?? offsetDirection;
+                            offsetDirection = (_OffsetDirection?)reader.ReadAsInt32Safe() ?? offsetDirection;
                             break;
 
                         case _customData:
@@ -771,16 +862,16 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new WaypointData(beat, line, layer, offsetDirection, data)));
+                }).Finish(() => list.Add(new WaypointSaveData(beat, line, layer, offsetDirection, data)));
             });
         }
 
-        public static void DeserializeBasicEventArray(JsonReader reader, List<BeatmapSaveData.BasicEventData> list)
+        public static void DeserializeBasicEventArray(JsonReader reader, List<_BasicEventData> list)
         {
             reader.ReadArray(() =>
             {
                 float beat = default;
-                BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.BeatmapEventType eventType = default;
+                _BeatmapEventType eventType = default;
                 int value = default;
                 float floatValue = default;
                 CustomData data = new();
@@ -793,7 +884,7 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "et":
-                            eventType = (BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.BeatmapEventType?)reader.ReadAsInt32Safe() ?? eventType;
+                            eventType = (_BeatmapEventType?)reader.ReadAsInt32Safe() ?? eventType;
                             break;
 
                         case "i":
@@ -812,11 +903,11 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new BasicEventData(beat, eventType, value, floatValue, data)));
+                }).Finish(() => list.Add(new BasicEventSaveData(beat, eventType, value, floatValue, data)));
             });
         }
 
-        public static void DeserializeColorBoostArray(JsonReader reader, List<BeatmapSaveData.ColorBoostEventData> list)
+        public static void DeserializeColorBoostArray(JsonReader reader, List<_ColorBoostEventData> list)
         {
             reader.ReadArray(() =>
             {
@@ -843,27 +934,27 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new ColorBoostEventData(beat, boost, data)));
+                }).Finish(() => list.Add(new ColorBoostEventSaveData(beat, boost, data)));
             });
         }
 
-        public static IndexFilter DeserializeIndexFilter(JsonReader reader)
+        public static _IndexFilter DeserializeIndexFilter(JsonReader reader)
         {
-            IndexFilter.IndexFilterType type = default;
+            _IndexFilterType type = default;
             int param0 = default;
             int param1 = default;
             bool reversed = default;
-            IndexFilterRandomType random = default;
+            _IndexFilterRandomType random = default;
             int seed = default;
             int chunks = default;
             float limit = default;
-            IndexFilterLimitAlsoAffectsType limitAlsoAffectsType = default;
+            _IndexFilterLimitAlsoAffectsType limitAlsoAffectsType = default;
             reader.ReadObject(objectName =>
             {
                 switch (objectName)
                 {
                     case "f":
-                        type = (IndexFilter.IndexFilterType?)reader.ReadAsInt32Safe() ?? type;
+                        type = (_IndexFilterType?)reader.ReadAsInt32Safe() ?? type;
                         break;
 
                     case "p":
@@ -887,12 +978,12 @@ namespace CustomJSONData.CustomBeatmap
                         break;
 
                     case "d":
-                        limitAlsoAffectsType = (IndexFilterLimitAlsoAffectsType?)reader.ReadAsInt32Safe() ??
+                        limitAlsoAffectsType = (_IndexFilterLimitAlsoAffectsType?)reader.ReadAsInt32Safe() ??
                                                limitAlsoAffectsType;
                         break;
 
                     case "n":
-                        random = (IndexFilterRandomType?)reader.ReadAsInt32Safe() ?? random;
+                        random = (_IndexFilterRandomType?)reader.ReadAsInt32Safe() ?? random;
                         break;
 
                     case "s":
@@ -905,10 +996,10 @@ namespace CustomJSONData.CustomBeatmap
                 }
             });
 
-            return new IndexFilter(type, param0, param1, reversed, random, seed, chunks, limit, limitAlsoAffectsType);
+            return new _IndexFilter(type, param0, param1, reversed, random, seed, chunks, limit, limitAlsoAffectsType);
         }
 
-        public static void DeserializeLightColorEventBoxGroupArray(JsonReader reader, List<BeatmapSaveData.LightColorEventBoxGroup> list)
+        public static void DeserializeLightColorEventBoxGroupArray(JsonReader reader, List<_LightColorEventBoxGroup> list)
         {
             reader.ReadArray(() =>
             {
@@ -931,14 +1022,14 @@ namespace CustomJSONData.CustomBeatmap
                         case _eventBoxes:
                             reader.ReadArray(() =>
                             {
-                                IndexFilter? indexFilter = default;
+                                _IndexFilter? indexFilter = default;
                                 float beatDistributionParam = default;
-                                EventBox.DistributionParamType beatDistributionParamType = default;
+                                _DistributionParamType beatDistributionParamType = default;
                                 float brightnessDistributionParam = default;
                                 bool brightnessDistributionShouldAffectFirstBaseEvent = default;
-                                EventBox.DistributionParamType brightnessDistributionParamType = default;
-                                EaseType brightnessDistributionEaseType = default;
-                                List<LightColorBaseData> lightColorBaseDataList = new();
+                                _DistributionParamType brightnessDistributionParamType = default;
+                                _EaseType brightnessDistributionEaseType = default;
+                                List<_LightColorBaseData> lightColorBaseDataList = new();
                                 return reader.ReadObject(eventName =>
                                 {
                                     switch (eventName)
@@ -954,7 +1045,7 @@ namespace CustomJSONData.CustomBeatmap
 
                                         case _beatDistributionParamType:
                                             beatDistributionParamType =
-                                                (EventBox.DistributionParamType?)reader.ReadAsInt32Safe() ??
+                                                (_DistributionParamType?)reader.ReadAsInt32Safe() ??
                                                 beatDistributionParamType;
                                             break;
 
@@ -971,12 +1062,12 @@ namespace CustomJSONData.CustomBeatmap
 
                                         case "t":
                                             brightnessDistributionParamType =
-                                                (EventBox.DistributionParamType?)reader.ReadAsInt32Safe() ??
+                                                (_DistributionParamType?)reader.ReadAsInt32Safe() ??
                                                 brightnessDistributionParamType;
                                             break;
 
                                         case "i":
-                                            brightnessDistributionEaseType = (EaseType?)reader.ReadAsInt32Safe() ??
+                                            brightnessDistributionEaseType = (_EaseType?)reader.ReadAsInt32Safe() ??
                                                                              brightnessDistributionEaseType;
                                             break;
 
@@ -985,10 +1076,10 @@ namespace CustomJSONData.CustomBeatmap
                                             {
                                                 float lightBeat = default;
                                                 TransitionType transitionType = default;
-                                                EnvironmentColorType colorType = default;
+                                                _EnvironmentColorType colorType = default;
                                                 float brightness = default;
                                                 int strobeFrequency = default;
-#if LATEST
+#if !V1_29_1
                                                 float strobeBrightness = default;
                                                 bool strobeFade = default;
 #endif
@@ -1008,7 +1099,7 @@ namespace CustomJSONData.CustomBeatmap
 
                                                         case _colorType:
                                                             colorType =
-                                                                (EnvironmentColorType?)reader.ReadAsInt32Safe() ??
+                                                                (_EnvironmentColorType?)reader.ReadAsInt32Safe() ??
                                                                 colorType;
                                                             break;
 
@@ -1020,7 +1111,7 @@ namespace CustomJSONData.CustomBeatmap
                                                             strobeFrequency = reader.ReadAsInt32Safe() ??
                                                                               strobeFrequency;
                                                             break;
-#if LATEST
+#if !V1_29_1
                                                         case "sb":
                                                             strobeBrightness = (float?)reader.ReadAsDouble() ??
                                                                                strobeBrightness;
@@ -1036,12 +1127,12 @@ namespace CustomJSONData.CustomBeatmap
                                                             reader.Skip();
                                                             break;
                                                     }
-                                                }).Finish(() => lightColorBaseDataList.Add(new LightColorBaseData(
+                                                }).Finish(() => lightColorBaseDataList.Add(new _LightColorBaseData(
                                                     lightBeat,
                                                     transitionType,
                                                     colorType,
                                                     brightness,
-#if LATEST
+#if !V1_29_1
                                                     strobeFrequency,
                                                     strobeBrightness,
                                                     strobeFade)));
@@ -1075,11 +1166,11 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new LightColorEventBoxGroup(beat, groupId, eventBoxes, data)));
+                }).Finish(() => list.Add(new LightColorEventBoxGroupSaveData(beat, groupId, eventBoxes, data)));
             });
         }
 
-        public static void DeserializeLightRotationEventBoxGroupArray(JsonReader reader, List<BeatmapSaveData.LightRotationEventBoxGroup> list)
+        public static void DeserializeLightRotationEventBoxGroupArray(JsonReader reader, List<_LightRotationEventBoxGroup> list)
         {
             reader.ReadArray(() =>
             {
@@ -1102,16 +1193,16 @@ namespace CustomJSONData.CustomBeatmap
                         case _eventBoxes:
                             reader.ReadArray(() =>
                             {
-                                IndexFilter? indexFilter = default;
+                                _IndexFilter? indexFilter = default;
                                 float beatDistributionParam = default;
-                                EventBox.DistributionParamType beatDistributionParamType = default;
+                                _DistributionParamType beatDistributionParamType = default;
                                 float rotationDistributionParam = default;
-                                EventBox.DistributionParamType rotationDistributionParamType = default;
+                                _DistributionParamType rotationDistributionParamType = default;
                                 bool rotationDistributionShouldAffectFirstBaseEvent = default;
-                                EaseType rotationDistributionEaseType = default;
-                                Axis axis = default;
+                                _EaseType rotationDistributionEaseType = default;
+                                _Axis axis = default;
                                 bool flipRotation = default;
-                                List<LightRotationBaseData> lightRotationBaseDataList = new();
+                                List<_LightRotationBaseData> lightRotationBaseDataList = new();
                                 return reader.ReadObject(eventName =>
                                 {
                                     switch (eventName)
@@ -1127,7 +1218,7 @@ namespace CustomJSONData.CustomBeatmap
 
                                         case _beatDistributionParamType:
                                             beatDistributionParamType =
-                                                (EventBox.DistributionParamType?)reader.ReadAsInt32Safe() ??
+                                                (_DistributionParamType?)reader.ReadAsInt32Safe() ??
                                                 beatDistributionParamType;
                                             break;
 
@@ -1138,7 +1229,7 @@ namespace CustomJSONData.CustomBeatmap
 
                                         case "t":
                                             rotationDistributionParamType =
-                                                (EventBox.DistributionParamType?)reader.ReadAsInt32Safe() ??
+                                                (_DistributionParamType?)reader.ReadAsInt32Safe() ??
                                                 rotationDistributionParamType;
                                             break;
 
@@ -1149,7 +1240,7 @@ namespace CustomJSONData.CustomBeatmap
                                             break;
 
                                         case "a":
-                                            axis = (Axis?)reader.ReadAsInt32Safe() ?? axis;
+                                            axis = (_Axis?)reader.ReadAsInt32Safe() ?? axis;
                                             break;
 
                                         case "r":
@@ -1157,7 +1248,7 @@ namespace CustomJSONData.CustomBeatmap
                                             break;
 
                                         case "i":
-                                            rotationDistributionEaseType = (EaseType?)reader.ReadAsInt32() ??
+                                            rotationDistributionEaseType = (_EaseType?)reader.ReadAsInt32() ??
                                                                            rotationDistributionEaseType;
                                             break;
 
@@ -1166,10 +1257,10 @@ namespace CustomJSONData.CustomBeatmap
                                             {
                                                 float lightBeat = default;
                                                 bool usePreviousEventRotationValue = default;
-                                                EaseType easeType = default;
+                                                _EaseType easeType = default;
                                                 int loopsCount = default;
                                                 float rotation = default;
-                                                LightRotationBaseData.RotationDirection rotationDirection = default;
+                                                _RotationDirection rotationDirection = default;
                                                 return reader.ReadObject(lightName =>
                                                 {
                                                     switch (lightName)
@@ -1184,7 +1275,7 @@ namespace CustomJSONData.CustomBeatmap
                                                             break;
 
                                                         case "e":
-                                                            easeType = (EaseType?)reader.ReadAsInt32Safe() ?? easeType;
+                                                            easeType = (_EaseType?)reader.ReadAsInt32Safe() ?? easeType;
                                                             break;
 
                                                         case "l":
@@ -1197,7 +1288,7 @@ namespace CustomJSONData.CustomBeatmap
 
                                                         case "o":
                                                             rotationDirection =
-                                                                (LightRotationBaseData.RotationDirection?)reader
+                                                                (_RotationDirection?)reader
                                                                     .ReadAsInt32Safe() ?? rotationDirection;
                                                             break;
 
@@ -1205,7 +1296,7 @@ namespace CustomJSONData.CustomBeatmap
                                                             reader.Skip();
                                                             break;
                                                     }
-                                                }).Finish(() => lightRotationBaseDataList.Add(new LightRotationBaseData(
+                                                }).Finish(() => lightRotationBaseDataList.Add(new _LightRotationBaseData(
                                                     lightBeat,
                                                     usePreviousEventRotationValue,
                                                     easeType,
@@ -1241,7 +1332,7 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new LightRotationEventBoxGroup(beat, groupId, eventBoxes, data)));
+                }).Finish(() => list.Add(new LightRotationEventBoxGroupSaveData(beat, groupId, eventBoxes, data)));
             });
         }
 
@@ -1268,16 +1359,16 @@ namespace CustomJSONData.CustomBeatmap
                         case _eventBoxes:
                             reader.ReadArray(() =>
                             {
-                                IndexFilter? indexFilter = default;
+                                _IndexFilter? indexFilter = default;
                                 float beatDistributionParam = default;
-                                EventBox.DistributionParamType beatDistributionParamType = default;
+                                _DistributionParamType beatDistributionParamType = default;
                                 float gapDistributionParam = default;
-                                EventBox.DistributionParamType gapDistributionParamType = default;
+                                _DistributionParamType gapDistributionParamType = default;
                                 bool gapDistributionShouldAffectFirstBaseEvent = default;
-                                EaseType gapDistributionEaseType = default;
-                                Axis axis = default;
+                                _EaseType gapDistributionEaseType = default;
+                                _Axis axis = default;
                                 bool flipRotation = default;
-                                List<LightTranslationBaseData> lightTranslationBaseDataList = new();
+                                List<_LightTranslationBaseData> lightTranslationBaseDataList = new();
                                 return reader.ReadObject(eventName =>
                                 {
                                     switch (eventName)
@@ -1293,7 +1384,7 @@ namespace CustomJSONData.CustomBeatmap
 
                                         case _beatDistributionParamType:
                                             beatDistributionParamType =
-                                                (EventBox.DistributionParamType?)reader.ReadAsInt32Safe() ??
+                                                (_DistributionParamType?)reader.ReadAsInt32Safe() ??
                                                 beatDistributionParamType;
                                             break;
 
@@ -1304,7 +1395,7 @@ namespace CustomJSONData.CustomBeatmap
 
                                         case "t":
                                             gapDistributionParamType =
-                                                (EventBox.DistributionParamType?)reader.ReadAsInt32Safe() ??
+                                                (_DistributionParamType?)reader.ReadAsInt32Safe() ??
                                                 gapDistributionParamType;
                                             break;
 
@@ -1314,7 +1405,7 @@ namespace CustomJSONData.CustomBeatmap
                                             break;
 
                                         case "a":
-                                            axis = (Axis?)reader.ReadAsInt32Safe() ?? axis;
+                                            axis = (_Axis?)reader.ReadAsInt32Safe() ?? axis;
                                             break;
 
                                         case "r":
@@ -1322,7 +1413,7 @@ namespace CustomJSONData.CustomBeatmap
                                             break;
 
                                         case "i":
-                                            gapDistributionEaseType = (EaseType?)reader.ReadAsInt32() ??
+                                            gapDistributionEaseType = (_EaseType?)reader.ReadAsInt32() ??
                                                                       gapDistributionEaseType;
                                             break;
 
@@ -1331,7 +1422,7 @@ namespace CustomJSONData.CustomBeatmap
                                             {
                                                 float lightBeat = default;
                                                 bool usePreviousEventTransitionValue = default;
-                                                EaseType easeType = default;
+                                                _EaseType easeType = default;
                                                 float translation = default;
                                                 return reader.ReadObject(lightName =>
                                                 {
@@ -1348,7 +1439,7 @@ namespace CustomJSONData.CustomBeatmap
                                                             break;
 
                                                         case "e":
-                                                            easeType = (EaseType?)reader.ReadAsInt32Safe() ?? easeType;
+                                                            easeType = (_EaseType?)reader.ReadAsInt32Safe() ?? easeType;
                                                             break;
 
                                                         case "t":
@@ -1359,7 +1450,7 @@ namespace CustomJSONData.CustomBeatmap
                                                             reader.Skip();
                                                             break;
                                                     }
-                                                }).Finish(() => lightTranslationBaseDataList.Add(new LightTranslationBaseData(
+                                                }).Finish(() => lightTranslationBaseDataList.Add(new _LightTranslationBaseData(
                                                     lightBeat,
                                                     usePreviousEventTransitionValue,
                                                     easeType,
@@ -1394,7 +1485,7 @@ namespace CustomJSONData.CustomBeatmap
         }
 
         // TODO: Make this file not 1 billion lines long
-#if LATEST
+#if !V1_29_1
         public static void DeserializeFxEventBoxGroupArray(JsonReader reader, List<FxEventBoxGroup> list)
         {
             reader.ReadArray(() =>
@@ -1418,13 +1509,13 @@ namespace CustomJSONData.CustomBeatmap
                         case _eventBoxes:
                             reader.ReadArray(() =>
                             {
-                                IndexFilter? indexFilter = default;
+                                _IndexFilter? indexFilter = default;
                                 float beatDistributionParam = default;
-                                EventBox.DistributionParamType beatDistributionParamType = default;
+                                _DistributionParamType beatDistributionParamType = default;
                                 float vfxDistributionParam = default;
-                                EventBox.DistributionParamType vfxDistributionParamType = default;
+                                _DistributionParamType vfxDistributionParamType = default;
                                 bool vfxDistributionShouldAffectFirstBaseEvent = default;
-                                EaseType vfxDistributionEaseType = default;
+                                _EaseType vfxDistributionEaseType = default;
                                 int[] vfxBaseDataList = Array.Empty<int>();
                                 return reader.ReadObject(eventName =>
                                 {
@@ -1441,7 +1532,7 @@ namespace CustomJSONData.CustomBeatmap
 
                                         case _beatDistributionParamType:
                                             beatDistributionParamType =
-                                                (EventBox.DistributionParamType?)reader.ReadAsInt32Safe() ??
+                                                (_DistributionParamType?)reader.ReadAsInt32Safe() ??
                                                 beatDistributionParamType;
                                             break;
 
@@ -1452,7 +1543,7 @@ namespace CustomJSONData.CustomBeatmap
 
                                         case "t":
                                             vfxDistributionParamType =
-                                                (EventBox.DistributionParamType?)reader.ReadAsInt32Safe() ??
+                                                (_DistributionParamType?)reader.ReadAsInt32Safe() ??
                                                 vfxDistributionParamType;
                                             break;
 
@@ -1462,7 +1553,7 @@ namespace CustomJSONData.CustomBeatmap
                                             break;
 
                                         case "i":
-                                            vfxDistributionEaseType = (EaseType?)reader.ReadAsInt32() ??
+                                            vfxDistributionEaseType = (_EaseType?)reader.ReadAsInt32() ??
                                                                       vfxDistributionEaseType;
                                             break;
 
@@ -1547,7 +1638,7 @@ namespace CustomJSONData.CustomBeatmap
                             float beat = default;
                             bool usePreviousEventValue = default;
                             float value = default;
-                            EaseType easeType = default;
+                            _EaseType easeType = default;
                             return reader.ReadObject(keywordName =>
                             {
                                 switch (keywordName)
@@ -1565,7 +1656,7 @@ namespace CustomJSONData.CustomBeatmap
                                         break;
 
                                     case "i":
-                                        easeType = (EaseType?)reader.ReadAsInt32() ??
+                                        easeType = (_EaseType?)reader.ReadAsInt32() ??
                                                    easeType;
                                         break;
 
@@ -1588,12 +1679,12 @@ namespace CustomJSONData.CustomBeatmap
         }
 #endif
 
-        public static void DeserializeBasicEventTypesForKeywordArray(JsonReader reader, List<BasicEventTypesWithKeywords.BasicEventTypesForKeyword> list)
+        public static void DeserializeBasicEventTypesForKeywordArray(JsonReader reader, List<_BasicEventTypesWithKeywords.BasicEventTypesForKeyword> list)
         {
             reader.ReadArray(() =>
             {
                 string keyword = string.Empty;
-                List<BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.BeatmapEventType> eventTypes = new();
+                List<_BeatmapEventType> eventTypes = new();
                 return reader.ReadObject(keywordName =>
                 {
                     switch (keywordName)
@@ -1614,8 +1705,7 @@ namespace CustomJSONData.CustomBeatmap
                                 int? specialEvent = reader.ReadAsInt32Safe();
                                 if (specialEvent.HasValue)
                                 {
-                                    eventTypes.Add(
-                                        (BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.BeatmapEventType)specialEvent);
+                                    eventTypes.Add((_BeatmapEventType)specialEvent);
                                 }
                                 else
                                 {
@@ -1634,30 +1724,30 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new BasicEventTypesWithKeywords.BasicEventTypesForKeyword(keyword, eventTypes)));
+                }).Finish(() => list.Add(new _BasicEventTypesWithKeywords.BasicEventTypesForKeyword(keyword, eventTypes)));
             });
         }
 
         public readonly struct SaveDataCustomDatas
         {
             internal SaveDataCustomDatas(
-                CustomData customData,
                 CustomData beatmapCustomData,
-                CustomData levelCustomData)
+                CustomData levelCustomData,
+                CustomData customData)
             {
-                this.customData = customData;
                 this.beatmapCustomData = beatmapCustomData;
                 this.levelCustomData = levelCustomData;
+                this.customData = customData;
             }
-
-            [PublicAPI]
-            public CustomData customData { get; }
 
             [PublicAPI]
             public CustomData beatmapCustomData { get; }
 
             [PublicAPI]
             public CustomData levelCustomData { get; }
+
+            [PublicAPI]
+            public CustomData customData { get; }
         }
     }
 }

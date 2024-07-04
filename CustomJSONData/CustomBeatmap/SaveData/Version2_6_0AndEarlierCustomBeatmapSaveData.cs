@@ -1,61 +1,90 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using BeatmapSaveDataVersion2_6_0AndEarlier;
 using Newtonsoft.Json;
+#if LATEST
+using _BeatmapEventType = BeatmapSaveDataCommon.BeatmapEventType;
+using _ColorType = BeatmapSaveDataVersion2_6_0AndEarlier.ColorType;
+using _EventData = BeatmapSaveDataVersion2_6_0AndEarlier.EventData;
+using _NoteCutDirection = BeatmapSaveDataCommon.NoteCutDirection;
+using _NoteData = BeatmapSaveDataVersion2_6_0AndEarlier.NoteData;
+using _NoteLineLayer = BeatmapSaveDataCommon.NoteLineLayer;
+using _NoteType = BeatmapSaveDataVersion2_6_0AndEarlier.NoteType;
+using _ObstacleData = BeatmapSaveDataVersion2_6_0AndEarlier.ObstacleData;
+using _ObstacleType = BeatmapSaveDataVersion2_6_0AndEarlier.ObstacleType;
+using _OffsetDirection = BeatmapSaveDataCommon.OffsetDirection;
+using _SliderData = BeatmapSaveDataVersion2_6_0AndEarlier.SliderData;
+using _SliderMidAnchorMode = BeatmapSaveDataCommon.SliderMidAnchorMode;
+using _SpecialEventKeywordFiltersData = BeatmapSaveDataVersion2_6_0AndEarlier.SpecialEventKeywordFiltersData;
+using _SpecialEventsForKeyword = BeatmapSaveDataVersion2_6_0AndEarlier.SpecialEventsForKeyword;
+using _WaypointData = BeatmapSaveDataVersion2_6_0AndEarlier.WaypointData;
+#else
+using _BeatmapEventType = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.BeatmapEventType;
+using _ColorType = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.ColorType;
+using _EventData = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.EventData;
+using _NoteCutDirection = NoteCutDirection;
+using _NoteData = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.NoteData;
+using _NoteLineLayer = NoteLineLayer;
+using _NoteType = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.NoteType;
+using _ObstacleData = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.ObstacleData;
+using _ObstacleType = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.ObstacleType;
+using _OffsetDirection = OffsetDirection;
+using _SliderData = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.SliderData;
+using _SliderMidAnchorMode = SliderMidAnchorMode;
+using _SpecialEventKeywordFiltersData = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.SpecialEventKeywordFiltersData;
+using _SpecialEventsForKeyword = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.SpecialEventsForKeyword;
+using _WaypointData = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.WaypointData;
+#endif
 
 namespace CustomJSONData.CustomBeatmap
 {
-    public class Custom2_6_0AndEarlierBeatmapSaveData
+    public class Version2_6_0AndEarlierCustomBeatmapSaveData : BeatmapSaveData
     {
-        private Custom2_6_0AndEarlierBeatmapSaveData(
-            List<EventData> events,
-            List<NoteData> notes,
-            List<SliderData> sliders,
-            List<WaypointData> waypoints,
-            List<ObstacleData> obstacles,
-            BeatmapSaveData.SpecialEventKeywordFiltersData specialEventsKeywordFilters,
+        private Version2_6_0AndEarlierCustomBeatmapSaveData(
+            string version,
+            List<_EventData> events,
+            List<_NoteData> notes,
+            List<_SliderData> sliders,
+            List<_WaypointData> waypoints,
+            List<_ObstacleData> obstacles,
+            SpecialEventKeywordFiltersData specialEventsKeywordFilters,
             CustomData customData,
-            List<CustomEventData> customEvents)
+            List<CustomEventSaveData> customEvents)
+            : base(
+                events,
+                notes,
+                sliders,
+                waypoints,
+                obstacles,
+                specialEventsKeywordFilters)
         {
-            this.events = events;
-            this.notes = notes;
-            this.sliders = sliders;
-            this.waypoints = waypoints;
-            this.obstacles = obstacles;
-            this.specialEventsKeywordFilters = specialEventsKeywordFilters;
+            _version = version;
             this.customData = customData;
             this.customEvents = customEvents;
         }
 
-        public List<EventData> events { get; private set; }
-
-        public List<NoteData> notes { get; }
-
-        public List<SliderData> sliders { get; }
-
-        public List<WaypointData> waypoints { get; }
-
-        public List<ObstacleData> obstacles { get; }
-
-        public BeatmapSaveData.SpecialEventKeywordFiltersData specialEventsKeywordFilters { get; }
-
-        public List<CustomEventData> customEvents { get; }
+        public List<CustomEventSaveData> customEvents { get; }
 
         public CustomData customData { get; }
 
-        public static Custom2_6_0AndEarlierBeatmapSaveData Deserialize(Version version, string path)
+        public static Version2_6_0AndEarlierCustomBeatmapSaveData Deserialize(string path)
         {
+            string version = string.Empty;
             CustomData customData = new();
-            List<CustomEventData> customEvents = new();
-            List<EventData> events = new();
-            List<NoteData> notes = new();
-            List<SliderData> sliders = new();
-            List<WaypointData> waypoints = new();
-            List<ObstacleData> obstacles = new();
-            List<BeatmapSaveData.SpecialEventsForKeyword> keywords = new();
+            List<CustomEventSaveData> customEvents = new();
+            List<_EventData> events = new();
+            List<_NoteData> notes = new();
+            List<_SliderData> sliders = new();
+            List<_WaypointData> waypoints = new();
+            List<_ObstacleData> obstacles = new();
+            List<_SpecialEventsForKeyword> keywords = new();
 
+#if LATEST
+            using JsonTextReader reader = new(new StringReader(path));
+#else
             using JsonTextReader reader = new(new StreamReader(path));
+#endif
+
             while (reader.Read())
             {
                 if (reader.TokenType == JsonToken.PropertyName)
@@ -64,6 +93,10 @@ namespace CustomJSONData.CustomBeatmap
                     {
                         default:
                             reader.Skip();
+                            break;
+
+                        case "_version":
+                            version = reader.ReadAsString() ?? version;
                             break;
 
                         case "_events":
@@ -118,31 +151,26 @@ namespace CustomJSONData.CustomBeatmap
                 }
             }
 
-            Custom2_6_0AndEarlierBeatmapSaveData beatmapSaveData = new(
+            Version2_6_0AndEarlierCustomBeatmapSaveData beatmapSaveData = new(
+                version,
                 events,
                 notes,
                 sliders,
                 waypoints,
                 obstacles,
-                new BeatmapSaveData.SpecialEventKeywordFiltersData(keywords),
+                new SpecialEventKeywordFiltersData(keywords),
                 customData,
                 customEvents);
-
-            // wtf
-            if (version.CompareTo(new Version("2.5.0")) < 0)
-            {
-                ConvertBeatmapSaveDataPreV2_5_0(beatmapSaveData);
-            }
 
             return beatmapSaveData;
         }
 
-        public static void DeserializeEventArray(JsonReader reader, List<EventData> list)
+        public static void DeserializeEventArray(JsonReader reader, List<_EventData> list)
         {
             reader.ReadArray(() =>
             {
                 float time = default;
-                BeatmapSaveData.BeatmapEventType type = default;
+                _BeatmapEventType type = default;
                 int value = default;
                 float floatValue = default;
                 CustomData data = new();
@@ -155,7 +183,7 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "_type":
-                            type = (BeatmapSaveData.BeatmapEventType?)reader.ReadAsInt32Safe() ?? type;
+                            type = (_BeatmapEventType?)reader.ReadAsInt32Safe() ?? type;
                             break;
 
                         case "_value":
@@ -174,19 +202,19 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new EventData(time, type, value, floatValue, data)));
+                }).Finish(() => list.Add(new EventSaveData(time, type, value, floatValue, data)));
             });
         }
 
-        public static void DeserializeNoteArray(JsonReader reader, List<NoteData> list)
+        public static void DeserializeNoteArray(JsonReader reader, List<_NoteData> list)
         {
             reader.ReadArray(() =>
             {
                 float time = default;
                 int lineIndex = default;
-                NoteLineLayer lineLayer = default;
-                BeatmapSaveData.NoteType type = default;
-                NoteCutDirection cutDirection = default;
+                _NoteLineLayer lineLayer = default;
+                _NoteType type = default;
+                _NoteCutDirection cutDirection = default;
                 CustomData data = new();
                 return reader.ReadObject(objectName =>
                 {
@@ -201,15 +229,15 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "_lineLayer":
-                            lineLayer = (NoteLineLayer?)reader.ReadAsInt32Safe() ?? lineLayer;
+                            lineLayer = (_NoteLineLayer?)reader.ReadAsInt32Safe() ?? lineLayer;
                             break;
 
                         case "_type":
-                            type = (BeatmapSaveData.NoteType?)reader.ReadAsInt32Safe() ?? type;
+                            type = (_NoteType?)reader.ReadAsInt32Safe() ?? type;
                             break;
 
                         case "_cutDirection":
-                            cutDirection = (NoteCutDirection?)reader.ReadAsInt32Safe() ?? cutDirection;
+                            cutDirection = (_NoteCutDirection?)reader.ReadAsInt32Safe() ?? cutDirection;
                             break;
 
                         case "_customData":
@@ -220,26 +248,26 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new NoteData(time, lineIndex, lineLayer, type, cutDirection, data)));
+                }).Finish(() => list.Add(new NoteSaveData(time, lineIndex, lineLayer, type, cutDirection, data)));
             });
         }
 
-        public static void DeserializeSliderArray(JsonReader reader, List<SliderData> list)
+        public static void DeserializeSliderArray(JsonReader reader, List<_SliderData> list)
         {
             reader.ReadArray(() =>
             {
                 float time = default;
-                BeatmapSaveData.ColorType colorType = default;
+                _ColorType colorType = default;
                 int headLineIndex = default;
-                NoteLineLayer noteLineLayer = default;
+                _NoteLineLayer noteLineLayer = default;
                 float headControlPointLengthMultiplier = default;
-                NoteCutDirection noteCutDirection = default;
+                _NoteCutDirection noteCutDirection = default;
                 float tailTime = default;
                 int tailLineIndex = default;
-                NoteLineLayer tailLineLayer = default;
+                _NoteLineLayer tailLineLayer = default;
                 float tailControlPointLengthMultiplier = default;
-                NoteCutDirection tailCutDirection = default;
-                SliderMidAnchorMode sliderMidAnchorMode = default;
+                _NoteCutDirection tailCutDirection = default;
+                _SliderMidAnchorMode sliderMidAnchorMode = default;
                 CustomData data = new();
                 return reader.ReadObject(objectName =>
                 {
@@ -250,7 +278,7 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "_colorType":
-                            colorType = (BeatmapSaveData.ColorType?)reader.ReadAsInt32Safe() ?? colorType;
+                            colorType = (_ColorType?)reader.ReadAsInt32Safe() ?? colorType;
                             break;
 
                         case "_headLineIndex":
@@ -258,7 +286,7 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "_noteLineLayer":
-                            noteLineLayer = (NoteLineLayer?)reader.ReadAsInt32Safe() ?? noteLineLayer;
+                            noteLineLayer = (_NoteLineLayer?)reader.ReadAsInt32Safe() ?? noteLineLayer;
                             break;
 
                         case "_headControlPointLengthMultiplier":
@@ -267,7 +295,7 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "_noteCutDirection":
-                            noteCutDirection = (NoteCutDirection?)reader.ReadAsInt32Safe() ?? noteCutDirection;
+                            noteCutDirection = (_NoteCutDirection?)reader.ReadAsInt32Safe() ?? noteCutDirection;
                             break;
 
                         case "_tailTime":
@@ -279,7 +307,7 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "_tailLineLayer":
-                            tailLineLayer = (NoteLineLayer?)reader.ReadAsInt32Safe() ?? tailLineLayer;
+                            tailLineLayer = (_NoteLineLayer?)reader.ReadAsInt32Safe() ?? tailLineLayer;
                             break;
 
                         case "_tailControlPointLengthMultiplier":
@@ -288,11 +316,11 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "_tailCutDirection":
-                            tailCutDirection = (NoteCutDirection?)reader.ReadAsInt32Safe() ?? tailCutDirection;
+                            tailCutDirection = (_NoteCutDirection?)reader.ReadAsInt32Safe() ?? tailCutDirection;
                             break;
 
                         case "_sliderMidAnchorMode":
-                            sliderMidAnchorMode = (SliderMidAnchorMode?)reader.ReadAsInt32Safe() ?? sliderMidAnchorMode;
+                            sliderMidAnchorMode = (_SliderMidAnchorMode?)reader.ReadAsInt32Safe() ?? sliderMidAnchorMode;
                             break;
 
                         case "_customData":
@@ -303,7 +331,7 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new SliderData(
+                }).Finish(() => list.Add(new SliderSaveData(
                     colorType,
                     time,
                     headLineIndex,
@@ -320,14 +348,14 @@ namespace CustomJSONData.CustomBeatmap
             });
         }
 
-        public static void DeserializeWaypointArray(JsonReader reader, List<WaypointData> list)
+        public static void DeserializeWaypointArray(JsonReader reader, List<_WaypointData> list)
         {
             reader.ReadArray(() =>
             {
                 float time = default;
                 int lineIndex = default;
-                NoteLineLayer lineLayer = default;
-                OffsetDirection offsetDirection = default;
+                _NoteLineLayer lineLayer = default;
+                _OffsetDirection offsetDirection = default;
                 CustomData data = new();
                 return reader.ReadObject(objectName =>
                 {
@@ -342,11 +370,11 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "_lineLayer":
-                            lineLayer = (NoteLineLayer?)reader.ReadAsInt32Safe() ?? lineLayer;
+                            lineLayer = (_NoteLineLayer?)reader.ReadAsInt32Safe() ?? lineLayer;
                             break;
 
                         case "_offsetDirection":
-                            offsetDirection = (OffsetDirection?)reader.ReadAsInt32Safe() ?? offsetDirection;
+                            offsetDirection = (_OffsetDirection?)reader.ReadAsInt32Safe() ?? offsetDirection;
                             break;
 
                         case "_customData":
@@ -357,17 +385,17 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new WaypointData(time, lineIndex, lineLayer, offsetDirection, data)));
+                }).Finish(() => list.Add(new WaypointSaveData(time, lineIndex, lineLayer, offsetDirection, data)));
             });
         }
 
-        public static void DeserializeObstacleArray(JsonReader reader, List<ObstacleData> list)
+        public static void DeserializeObstacleArray(JsonReader reader, List<_ObstacleData> list)
         {
             reader.ReadArray(() =>
             {
                 float time = default;
                 int lineIndex = default;
-                BeatmapSaveData.ObstacleType type = default;
+                _ObstacleType type = default;
                 float duration = default;
                 int width = default;
                 CustomData data = new();
@@ -384,7 +412,7 @@ namespace CustomJSONData.CustomBeatmap
                             break;
 
                         case "_type":
-                            type = (BeatmapSaveData.ObstacleType?)reader.ReadAsInt32Safe() ?? type;
+                            type = (_ObstacleType?)reader.ReadAsInt32Safe() ?? type;
                             break;
 
                         case "_duration":
@@ -403,16 +431,16 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new ObstacleData(time, lineIndex, type, duration, width, data)));
+                }).Finish(() => list.Add(new ObstacleSaveData(time, lineIndex, type, duration, width, data)));
             });
         }
 
-        public static void DeserializeKeywordArray(JsonReader reader, List<BeatmapSaveData.SpecialEventsForKeyword> list)
+        public static void DeserializeKeywordArray(JsonReader reader, List<SpecialEventsForKeyword> list)
         {
             reader.ReadArray(() =>
             {
                 string keyword = string.Empty;
-                List<BeatmapSaveData.BeatmapEventType> specialEvents = new();
+                List<_BeatmapEventType> specialEvents = new();
                 return reader.ReadObject(objectName =>
                 {
                     switch (objectName)
@@ -433,7 +461,7 @@ namespace CustomJSONData.CustomBeatmap
                                 int? specialEvent = reader.ReadAsInt32Safe();
                                 if (specialEvent.HasValue)
                                 {
-                                    specialEvents.Add((BeatmapSaveData.BeatmapEventType)specialEvent);
+                                    specialEvents.Add((_BeatmapEventType)specialEvent);
                                 }
                                 else
                                 {
@@ -452,11 +480,11 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new BeatmapSaveData.SpecialEventsForKeyword(keyword, specialEvents)));
+                }).Finish(() => list.Add(new SpecialEventsForKeyword(keyword, specialEvents)));
             });
         }
 
-        public static void DeserializeCustomEventArray(JsonReader reader, List<CustomEventData> list)
+        public static void DeserializeCustomEventArray(JsonReader reader, List<CustomEventSaveData> list)
         {
             reader.ReadArray(
                 () =>
@@ -484,43 +512,48 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new CustomEventData(time, type, data)));
+                }).Finish(() => list.Add(new CustomEventSaveData(time, type, data)));
             },
                 false);
         }
 
-        private static void ConvertBeatmapSaveDataPreV2_5_0(Custom2_6_0AndEarlierBeatmapSaveData beatmapSaveData)
+        internal void ConvertBeatmapSaveDataPreV2_5_0()
         {
-            List<EventData> list = new(beatmapSaveData.events.Count);
-            foreach (EventData origEventData in beatmapSaveData.events)
+            List<_EventData> originalEvents = events;
+            List<_EventData> list = new(originalEvents.Count);
+            foreach (_EventData origEventData in originalEvents)
             {
-                EventData eventData = origEventData;
-                if (eventData.type == BeatmapSaveData.BeatmapEventType.Event10)
+                if (origEventData is not EventSaveData eventData)
                 {
-                    eventData = new EventData(eventData.time, BeatmapSaveData.BeatmapEventType.BpmChange, eventData.value, eventData.floatValue, eventData.customData);
+                    continue;
                 }
 
-                if (eventData.type == BeatmapSaveData.BeatmapEventType.BpmChange)
+                if (eventData.type == _BeatmapEventType.Event10)
+                {
+                    eventData = new EventSaveData(eventData.time, _BeatmapEventType.BpmChange, eventData.value, eventData.floatValue, eventData.customData);
+                }
+
+                if (eventData.type == _BeatmapEventType.BpmChange)
                 {
                     if (eventData.value != 0)
                     {
-                        eventData = new EventData(eventData.time, eventData.type, eventData.value, eventData.value, eventData.customData);
+                        eventData = new EventSaveData(eventData.time, eventData.type, eventData.value, eventData.value, eventData.customData);
                     }
                 }
                 else
                 {
-                    eventData = new EventData(eventData.time, eventData.type, eventData.value, 1f, eventData.customData);
+                    eventData = new EventSaveData(eventData.time, eventData.type, eventData.value, 1f, eventData.customData);
                 }
 
                 list.Add(eventData);
             }
 
-            beatmapSaveData.events = list;
+            _events = list;
         }
 
-        public class EventData : BeatmapSaveData.EventData
+        public class EventSaveData : _EventData, ICustomData
         {
-            internal EventData(float time, BeatmapSaveData.BeatmapEventType type, int value, float floatValue, CustomData customData)
+            internal EventSaveData(float time, _BeatmapEventType type, int value, float floatValue, CustomData customData)
                 : base(time, type, value, floatValue)
             {
                 this.customData = customData;
@@ -529,25 +562,25 @@ namespace CustomJSONData.CustomBeatmap
             public CustomData customData { get; }
         }
 
-        public class CustomEventData : BeatmapSaveDataItem
+        public class CustomEventSaveData : BeatmapSaveDataItem, ICustomData
         {
-            internal CustomEventData(float time, string type, CustomData data)
+            internal CustomEventSaveData(float time, string type, CustomData data)
             {
                 this.time = time;
                 this.type = type;
-                this.data = data;
+                customData = data;
             }
 
             public override float time { get; }
 
             public string type { get; }
 
-            public CustomData data { get; }
+            public CustomData customData { get; }
         }
 
-        public class NoteData : BeatmapSaveData.NoteData
+        public class NoteSaveData : _NoteData, ICustomData
         {
-            internal NoteData(float time, int lineIndex, NoteLineLayer lineLayer, BeatmapSaveData.NoteType type, NoteCutDirection cutDirection, CustomData customData)
+            internal NoteSaveData(float time, int lineIndex, _NoteLineLayer lineLayer, _NoteType type, _NoteCutDirection cutDirection, CustomData customData)
                 : base(time, lineIndex, lineLayer, type, cutDirection)
             {
                 this.customData = customData;
@@ -556,21 +589,21 @@ namespace CustomJSONData.CustomBeatmap
             public CustomData customData { get; }
         }
 
-        public class SliderData : BeatmapSaveData.SliderData
+        public class SliderSaveData : _SliderData, ICustomData
         {
-            internal SliderData(
-                BeatmapSaveData.ColorType colorType,
+            internal SliderSaveData(
+                _ColorType colorType,
                 float headTime,
                 int headLineIndex,
-                NoteLineLayer headLineLayer,
+                _NoteLineLayer headLineLayer,
                 float headControlPointLengthMultiplier,
-                NoteCutDirection headCutDirection,
+                _NoteCutDirection headCutDirection,
                 float tailTime,
                 int tailLineIndex,
-                NoteLineLayer tailLineLayer,
+                _NoteLineLayer tailLineLayer,
                 float tailControlPointLengthMultiplier,
-                NoteCutDirection tailCutDirection,
-                SliderMidAnchorMode sliderMidAnchorMode,
+                _NoteCutDirection tailCutDirection,
+                _SliderMidAnchorMode sliderMidAnchorMode,
                 CustomData customData)
                 : base(
                     colorType,
@@ -592,9 +625,9 @@ namespace CustomJSONData.CustomBeatmap
             public CustomData customData { get; }
         }
 
-        public class WaypointData : BeatmapSaveData.WaypointData
+        public class WaypointSaveData : _WaypointData, ICustomData
         {
-            public WaypointData(float time, int lineIndex, NoteLineLayer lineLayer, OffsetDirection offsetDirection, CustomData customData)
+            public WaypointSaveData(float time, int lineIndex, _NoteLineLayer lineLayer, _OffsetDirection offsetDirection, CustomData customData)
                 : base(time, lineIndex, lineLayer, offsetDirection)
             {
                 this.customData = customData;
@@ -603,9 +636,9 @@ namespace CustomJSONData.CustomBeatmap
             public CustomData customData { get; }
         }
 
-        public class ObstacleData : BeatmapSaveData.ObstacleData
+        public class ObstacleSaveData : _ObstacleData, ICustomData
         {
-            public ObstacleData(float time, int lineIndex, BeatmapSaveData.ObstacleType type, float duration, int width, CustomData customData)
+            public ObstacleSaveData(float time, int lineIndex, _ObstacleType type, float duration, int width, CustomData customData)
                 : base(time, lineIndex, type, duration, width)
             {
                 this.customData = customData;

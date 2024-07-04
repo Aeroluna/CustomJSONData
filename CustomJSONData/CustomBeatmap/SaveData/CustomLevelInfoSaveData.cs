@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+#if !V1_29_1
+using System;
 using UnityEngine;
+#endif
 
 namespace CustomJSONData.CustomBeatmap
 {
@@ -26,13 +28,12 @@ namespace CustomJSONData.CustomBeatmap
             string coverImageFilename,
             string environmentName,
             string allDirectionsEnvironmentName,
-#if LATEST
+#if !V1_29_1
             string[] environmentNames,
             BeatmapLevelColorSchemeSaveData[] colorSchemes,
 #endif
             DifficultyBeatmapSet[] difficultyBeatmapSets,
-            CustomData customData,
-            Dictionary<string, CustomData> beatmapCustomDatasByFilename)
+            CustomData customData)
             : base(
                   songName,
                   songSubName,
@@ -48,7 +49,7 @@ namespace CustomJSONData.CustomBeatmap
                   coverImageFilename,
                   environmentName,
                   allDirectionsEnvironmentName,
-#if LATEST
+#if !V1_29_1
                   environmentNames,
                   colorSchemes,
 #endif
@@ -56,12 +57,9 @@ namespace CustomJSONData.CustomBeatmap
         {
             _version = version;
             this.customData = customData;
-            this.beatmapCustomDatasByFilename = beatmapCustomDatasByFilename;
         }
 
         public CustomData customData { get; }
-
-        public Dictionary<string, CustomData> beatmapCustomDatasByFilename { get; }
 
         // SongCore 3.9.0 skips past the CustomLevelLoader, so we just use the string data instead
         // Unfortunately no reading from a stream, but info.dat's should never be big enough to matter
@@ -82,13 +80,12 @@ namespace CustomJSONData.CustomBeatmap
             string coverImageFilename = string.Empty;
             string environmentName = string.Empty;
             string allDirectionsEnvironmentName = string.Empty;
-#if LATEST
+#if !V1_29_1
             string[] environmentNames = Array.Empty<string>();
             List<BeatmapLevelColorSchemeSaveData> colorSchemes = new();
 #endif
             List<DifficultyBeatmapSet> difficultyBeatmapSets = new();
             CustomData customData = new();
-            Dictionary<string, CustomData> beatmapCustomDatasByFilename = new();
 
             using JsonTextReader reader = new(new StringReader(stringData));
             while (reader.Read())
@@ -161,7 +158,7 @@ namespace CustomJSONData.CustomBeatmap
                             allDirectionsEnvironmentName = reader.ReadAsString() ?? allDirectionsEnvironmentName;
                             break;
 
-#if LATEST
+#if !V1_29_1
                         case "_environmentNames":
                             environmentNames = reader.ReadAsStringArray(false);
                             break;
@@ -303,14 +300,13 @@ namespace CustomJSONData.CustomBeatmap
                                                     }
                                                 }).Finish(() =>
                                                 {
-                                                    beatmapCustomDatasByFilename[beatmapFilename] = data;
                                                     difficultyBeatmaps.Add(new DifficultyBeatmap(
                                                         difficulty,
                                                         difficultyRank,
                                                         beatmapFilename,
                                                         noteJumpMovementSpeed,
                                                         noteJumpStartBeatOffset,
-#if LATEST
+#if !V1_29_1
                                                         beatmapColorSchemeIdx,
                                                         environmentNameIdx,
 #endif
@@ -354,13 +350,12 @@ namespace CustomJSONData.CustomBeatmap
                 coverImageFilename,
                 environmentName,
                 allDirectionsEnvironmentName,
-#if LATEST
+#if !V1_29_1
                 environmentNames,
                 colorSchemes.ToArray(),
 #endif
                 difficultyBeatmapSets.ToArray(),
-                customData,
-                beatmapCustomDatasByFilename);
+                customData);
         }
 
         public new class DifficultyBeatmap : StandardLevelInfoSaveData.DifficultyBeatmap
@@ -371,7 +366,7 @@ namespace CustomJSONData.CustomBeatmap
                 string beatmapFilename,
                 float noteJumpMovementSpeed,
                 float noteJumpStartBeatOffset,
-#if LATEST
+#if !V1_29_1
                 int beatmapColorSchemeIdx,
                 int environmentNameIdx,
 #endif
@@ -381,7 +376,7 @@ namespace CustomJSONData.CustomBeatmap
                 difficultyRank,
                 beatmapFilename,
                 noteJumpMovementSpeed,
-#if LATEST
+#if !V1_29_1
                 noteJumpStartBeatOffset,
                 beatmapColorSchemeIdx,
                 environmentNameIdx)
