@@ -23,7 +23,6 @@ namespace CustomJSONData.HarmonyPatches
         [HarmonyPatch(nameof(BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ConvertBeatmapSaveDataPreV2_5_0Inline))]
         private static bool CustomConvertPreV2_5_0(BeatmapSaveData beatmapSaveData)
         {
-            Plugin.Log.Info("CONVERT PRE 2_5_0");
             if (beatmapSaveData is not Version2_6_0AndEarlierCustomBeatmapSaveData customBeatmapSaveData)
             {
                 return true;
