@@ -143,14 +143,13 @@ namespace CustomJSONData.CustomBeatmap
 
         private static string FormatDictionary(CustomData dictionary, int indent = 0)
         {
-            string prefix = new('\t', indent);
+            string prefix = new(' ', indent * 2);
             StringBuilder builder = new();
-            builder.AppendLine(prefix + "{");
-            foreach ((string? key, object? value) in dictionary)
-            {
-                builder.AppendLine($"{prefix}\t\"{key}\": {FormatObject(value, indent + 1)}");
-            }
-
+            builder.AppendLine("{");
+            builder.AppendLine(string.Join(
+                ",\n",
+                dictionary.Select(n => $"{prefix}  \"{n.Key}\": {FormatObject(n.Value, indent + 1)}")));
+            builder.AppendLine();
             builder.Append(prefix + "}");
             return builder.ToString();
         }
