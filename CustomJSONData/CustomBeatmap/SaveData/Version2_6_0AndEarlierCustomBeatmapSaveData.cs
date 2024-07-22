@@ -528,10 +528,11 @@ namespace CustomJSONData.CustomBeatmap
                     continue;
                 }
 
-                if (eventData.type == _BeatmapEventType.Event10)
+                // breaks more maps than fixes
+                /*if (eventData.type == _BeatmapEventType.Event10)
                 {
                     eventData = new EventSaveData(eventData.time, _BeatmapEventType.BpmChange, eventData.value, eventData.floatValue, eventData.customData);
-                }
+                }*/
 
                 if (eventData.type == _BeatmapEventType.BpmChange)
                 {
