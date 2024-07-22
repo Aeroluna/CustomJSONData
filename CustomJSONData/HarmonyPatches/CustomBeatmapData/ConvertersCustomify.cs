@@ -198,13 +198,45 @@ namespace CustomJSONData.HarmonyPatches
                 .InstructionEnumeration();
         }
 
-        [HarmonyTranspiler]
+        // the transpiler dark magic strikes again...
+        // this time our transpiler here causes patches on GetHeightForObstacleType to fail
+        // specifically the height patch that mapping extensions needs
+        // how a transpiler breaks the patch on a different method is beyond me!!!
+        // transpiler giveth and transpiler taketh away
+        // for this reason, we'll just replace this with a prefix and override the original method
+        /*[HarmonyTranspiler]
         [HarmonyPatch(
             typeof(BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ObstacleConverter),
             nameof(BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ObstacleConverter.Convert))]
         private static IEnumerable<CodeInstruction> ObstacleConvertV2_6_0AndEarlier(IEnumerable<CodeInstruction> instructions)
         {
             return instructions.ReplaceCtor(_version2, _obstacleDataCtor, _customObstacleDataCtor);
+        }*/
+
+        [HarmonyPrefix]
+        [HarmonyPatch(
+            typeof(BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ObstacleConverter),
+            nameof(BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ObstacleConverter.Convert))]
+        private static bool ObstacleConvertV2_6_0AndEarlier(
+            BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ObstacleConverter __instance,
+            BeatmapSaveDataVersion2_6_0AndEarlier.ObstacleData o,
+            ref ObstacleData __result)
+        {
+            float time1 = __instance.BeatToTime(o.time);
+            float time2 = __instance.BeatToTime(o.time + o.duration);
+            __result = new CustomObstacleData(
+                time1,
+                o.lineIndex,
+                BeatmapTypeConverters.ConvertNoteLineLayer(
+                    BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ObstacleConverter
+                        .GetLayerForObstacleType(o.type)),
+                time2 - time1,
+                o.width,
+                BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ObstacleConverter
+                    .GetHeightForObstacleType(o.type),
+                o.GetData(),
+                BeatmapSaveDataHelpers.version2);
+            return false;
         }
 
         [HarmonyTranspiler]
