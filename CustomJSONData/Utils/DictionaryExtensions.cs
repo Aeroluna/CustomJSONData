@@ -1,4 +1,5 @@
-﻿using CustomJSONData.CustomBeatmap;
+﻿using System.Linq;
+using CustomJSONData.CustomBeatmap;
 using JetBrains.Annotations;
 
 namespace CustomJSONData
@@ -31,27 +32,29 @@ namespace CustomJSONData
         }
 
         [PublicAPI]
-        public static CustomData GetBeatmapCustomData(this BeatmapLevel beatmapLevelData, in BeatmapKey beatmapKey)
+        public static CustomData GetBeatmapCustomData(this BeatmapLevel beatmapLevel, in BeatmapKey beatmapKey)
         {
-            // ReSharper disable once InvertIf
-            if (beatmapLevelData is CustomBeatmapLevel customBeatmapLevelData)
+            BeatmapBasicData? beatmapBasicData =
+                beatmapLevel.GetDifficultyBeatmapData(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
+            if (beatmapBasicData is CustomBeatmapBasicData customBeatmapBasicData)
             {
-                BeatmapBasicData? beatmapBasicData =
-                    customBeatmapLevelData.GetDifficultyBeatmapData(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
-                if (beatmapBasicData is CustomBeatmapBasicData customBeatmapBasicData)
-                {
-                    return customBeatmapBasicData.customData;
-                }
+                return customBeatmapBasicData.beatmapCustomData;
             }
 
             return new CustomData();
         }
 
         [PublicAPI]
-        public static CustomData GetLevelCustomData(this BeatmapLevel beatmapLevelData)
+        public static CustomData GetLevelCustomData(this BeatmapLevel beatmapLevel)
         {
-            return beatmapLevelData is CustomBeatmapLevel customFileBeatmapLevelData
-                ? customFileBeatmapLevelData.customData : new CustomData();
+            // a lil jank but w/e
+            BeatmapBasicData? beatmapBasicData = beatmapLevel.beatmapBasicData.Values.FirstOrDefault();
+            if (beatmapBasicData is CustomBeatmapBasicData customBeatmapBasicData)
+            {
+                return customBeatmapBasicData.levelCustomData;
+            }
+
+            return new CustomData();
         }
 #else
         [PublicAPI]

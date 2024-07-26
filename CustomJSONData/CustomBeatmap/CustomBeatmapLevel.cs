@@ -1,9 +1,9 @@
 ﻿#if LATEST
-using System.Collections.Generic;
 
 namespace CustomJSONData.CustomBeatmap
 {
-    public class CustomBeatmapLevel : BeatmapLevel, ICustomData
+    // BeatmapLevel is override by playlist stuff so we cant both lay claim to it
+    /*public class CustomBeatmapLevel : BeatmapLevel, ICustomData
     {
         public CustomBeatmapLevel(
             int version,
@@ -47,9 +47,9 @@ namespace CustomJSONData.CustomBeatmap
         }
 
         public CustomData customData { get; }
-    }
+    }*/
 
-    public class CustomBeatmapBasicData : BeatmapBasicData, ICustomData
+    public class CustomBeatmapBasicData : BeatmapBasicData
     {
         public CustomBeatmapBasicData(
             float noteJumpMovementSpeed,
@@ -61,7 +61,8 @@ namespace CustomJSONData.CustomBeatmap
             int bombsCount,
             string[] mappers,
             string[] lighters,
-            CustomData customData)
+            CustomData levelCustomData,
+            CustomData beatmapCustomData)
             : base(
                 noteJumpMovementSpeed,
                 noteJumpStartBeatOffset,
@@ -73,10 +74,13 @@ namespace CustomJSONData.CustomBeatmap
                 mappers,
                 lighters)
         {
-            this.customData = customData;
+            this.levelCustomData = levelCustomData;
+            this.beatmapCustomData = beatmapCustomData;
         }
 
-        public CustomData customData { get; }
+        public CustomData levelCustomData { get; }
+
+        public CustomData beatmapCustomData { get; }
     }
 }
 #endif

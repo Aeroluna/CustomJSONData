@@ -16,10 +16,10 @@ namespace CustomJSONData.HarmonyPatches
         private static readonly ConstructorInfo _customFileDifficultyBeatmapCtor = AccessTools.FirstConstructor(typeof(CustomFileDifficultyBeatmap), _ => true);
         private static readonly ConstructorInfo _customFileBeatmapLevelDataCtor = AccessTools.FirstConstructor(typeof(CustomFileBeatmapLevelData), _ => true);
 
-        private static readonly ConstructorInfo _beatmapLevelCtor = AccessTools.FirstConstructor(typeof(BeatmapLevel), _ => true);
+        ////private static readonly ConstructorInfo _beatmapLevelCtor = AccessTools.FirstConstructor(typeof(BeatmapLevel), _ => true);
         private static readonly ConstructorInfo _beatmapBasicDataCtor = AccessTools.FirstConstructor(typeof(BeatmapBasicData), _ => true);
 
-        private static readonly ConstructorInfo _customBeatmapLevelCtor = AccessTools.FirstConstructor(typeof(CustomBeatmapLevel), _ => true);
+        ////private static readonly ConstructorInfo _customBeatmapLevelCtor = AccessTools.FirstConstructor(typeof(CustomBeatmapLevel), _ => true);
         private static readonly ConstructorInfo _customBeatmapBasicDataCtor = AccessTools.FirstConstructor(typeof(CustomBeatmapBasicData), _ => true);
 
         private static readonly MethodInfo _getDifficultyBeatmapCustomData =
@@ -71,15 +71,11 @@ namespace CustomJSONData.HarmonyPatches
             return new CodeMatcher(instructions)
                 .MatchForward(false, new CodeMatch(OpCodes.Newobj, _beatmapBasicDataCtor))
                 .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldarg_2),
+                    new CodeInstruction(OpCodes.Call, _getLevelInfoCustomData),
                     new CodeInstruction(OpCodes.Ldloc_S, 16),
                     new CodeInstruction(OpCodes.Call, _getDifficultyBeatmapCustomData))
                 .SetOperandAndAdvance(_customBeatmapBasicDataCtor)
-
-                .MatchForward(false, new CodeMatch(OpCodes.Newobj, _beatmapLevelCtor))
-                .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Ldarg_2),
-                    new CodeInstruction(OpCodes.Call, _getLevelInfoCustomData))
-                .SetOperandAndAdvance(_customBeatmapLevelCtor)
 
                 .InstructionEnumeration();
         }
