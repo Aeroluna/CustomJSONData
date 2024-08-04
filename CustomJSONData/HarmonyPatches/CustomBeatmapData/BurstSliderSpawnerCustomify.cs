@@ -10,8 +10,7 @@ namespace CustomJSONData.HarmonyPatches
     internal static class BurstSliderSpawnerCustomify
     {
         private static readonly MethodInfo _original = AccessTools.Method(typeof(NoteData), nameof(NoteData.CreateBurstSliderNoteData));
-        private static readonly MethodInfo _custom = AccessTools.Method(typeof(CustomNoteData), nameof(CustomNoteData.CreateCustomBurstSliderNoteData));
-        private static readonly MethodInfo _getData = AccessTools.Method(typeof(BurstSliderSpawnerCustomify), nameof(GetSliderData));
+        private static readonly MethodInfo _custom = AccessTools.Method(typeof(BurstSliderSpawnerCustomify), nameof(CreateCustomBurstSliderNoteData));
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(BurstSliderSpawner.ProcessSliderData))]
@@ -20,15 +19,42 @@ namespace CustomJSONData.HarmonyPatches
             return new CodeMatcher(instructions)
                 .MatchForward(false, new CodeMatch(OpCodes.Call, _original))
                 .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Ldarg_0),
-                    new CodeInstruction(OpCodes.Call, _getData))
+                    new CodeInstruction(OpCodes.Ldarg_0))
                 .SetOperandAndAdvance(_custom)
                 .InstructionEnumeration();
         }
 
-        private static CustomData GetSliderData(CustomSliderData sliderData)
+        private static NoteData CreateCustomBurstSliderNoteData(
+            float time,
+            int lineIndex,
+            NoteLineLayer noteLineLayer,
+            NoteLineLayer beforeJumpNoteLineLayer,
+            ColorType colorType,
+            NoteCutDirection cutDirection,
+            float cutSfxVolumeMultiplier,
+            SliderData sliderData)
         {
-            return sliderData.customData;
+            if (sliderData is CustomSliderData customSliderData)
+            {
+                return CustomNoteData.CreateCustomBurstSliderNoteData(
+                    time,
+                    lineIndex,
+                    noteLineLayer,
+                    beforeJumpNoteLineLayer,
+                    colorType,
+                    cutDirection,
+                    cutSfxVolumeMultiplier,
+                    customSliderData.customData);
+            }
+
+            return NoteData.CreateBurstSliderNoteData(
+                time,
+                lineIndex,
+                noteLineLayer,
+                beforeJumpNoteLineLayer,
+                colorType,
+                cutDirection,
+                cutSfxVolumeMultiplier);
         }
     }
 }
