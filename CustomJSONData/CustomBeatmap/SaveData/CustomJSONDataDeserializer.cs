@@ -22,13 +22,13 @@ namespace CustomJSONData.CustomBeatmap
                 JSONDeserializer attribute = method.GetCustomAttribute<JSONDeserializer>();
                 if (attribute == null)
                 {
-                    return;
+                    continue;
                 }
 
                 _methods.Add(attribute.PropertyName, method);
             }
 
-            if (!_methods.Any())
+            if (_methods.Count == 0)
             {
                 throw new ArgumentException($"[{type.FullName}] does not contain a method marked with [{nameof(JSONDeserializer)}].", nameof(type));
             }
