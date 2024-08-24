@@ -114,6 +114,18 @@ namespace CustomJSONData.CustomBeatmap
         }
 
         [PublicAPI]
+        public Color? GetColor(string key)
+        {
+            List<float>? color = Get<List<object>>(key)?.Select(Convert.ToSingle).ToList();
+            if (color == null)
+            {
+                return null;
+            }
+
+            return new Color(color[0], color[1], color[2], color.Count > 3 ? color[3] : 1);
+        }
+
+        [PublicAPI]
         public T GetStringToEnumRequired<T>(string key)
         {
             return GetStringToEnum<T?>(key) ?? throw new JsonNotDefinedException(key);
