@@ -1,4 +1,4 @@
-﻿#if LATEST
+﻿#if !PRE_V1_37_1
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -226,6 +226,10 @@ namespace CustomJSONData.HarmonyPatches
             float time2 = __instance.BeatToTime(o.time + o.duration);
             __result = new CustomObstacleData(
                 time1,
+#if LATEST
+                o.time,
+                o.time + o.duration,
+#endif
                 o.lineIndex,
                 BeatmapTypeConverters.ConvertNoteLineLayer(
                     BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ObstacleConverter

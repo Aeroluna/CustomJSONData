@@ -6,6 +6,9 @@ namespace CustomJSONData.CustomBeatmap
     {
         public CustomNoteData(
             float time,
+#if LATEST
+            float beat,
+#endif
             int lineIndex,
             NoteLineLayer noteLineLayer,
             NoteLineLayer beforeJumpNoteLineLayer,
@@ -21,21 +24,24 @@ namespace CustomJSONData.CustomBeatmap
             float cutSfxVolumeMultiplier,
             CustomData customData,
             Version version)
-                       : base(
-                             time,
-                             lineIndex,
-                             noteLineLayer,
-                             beforeJumpNoteLineLayer,
-                             gameplayType,
-                             scoringType,
-                             colorType,
-                             cutDirection,
-                             timeToNextColorNote,
-                             timeToPrevColorNote,
-                             flipLineIndex,
-                             flipYSide,
-                             cutDirectionAngleOffset,
-                             cutSfxVolumeMultiplier)
+            : base(
+                time,
+#if LATEST
+                beat,
+#endif
+                lineIndex,
+                noteLineLayer,
+                beforeJumpNoteLineLayer,
+                gameplayType,
+                scoringType,
+                colorType,
+                cutDirection,
+                timeToNextColorNote,
+                timeToPrevColorNote,
+                flipLineIndex,
+                flipYSide,
+                cutDirectionAngleOffset,
+                cutSfxVolumeMultiplier)
         {
             this.customData = customData;
             this.version = version;
@@ -45,34 +51,11 @@ namespace CustomJSONData.CustomBeatmap
 
         public Version version { get; }
 
-        public static CustomNoteData CreateCustomBombNoteData(
-            float time,
-            int lineIndex,
-            NoteLineLayer noteLineLayer,
-            CustomData customData,
-            Version version)
-        {
-            return new CustomNoteData(
-                time,
-                lineIndex,
-                noteLineLayer,
-                noteLineLayer,
-                GameplayType.Bomb,
-                ScoringType.NoScore,
-                ColorType.None,
-                NoteCutDirection.None,
-                0f,
-                0f,
-                lineIndex,
-                0f,
-                0f,
-                1f,
-                customData,
-                version);
-        }
-
         public static CustomNoteData CreateCustomBasicNoteData(
             float time,
+#if LATEST
+            float beat,
+#endif
             int lineIndex,
             NoteLineLayer noteLineLayer,
             ColorType colorType,
@@ -82,6 +65,9 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomNoteData(
                 time,
+#if LATEST
+                beat,
+#endif
                 lineIndex,
                 noteLineLayer,
                 noteLineLayer,
@@ -99,8 +85,43 @@ namespace CustomJSONData.CustomBeatmap
                 version);
         }
 
+        public static CustomNoteData CreateCustomBombNoteData(
+            float time,
+#if LATEST
+            float beat,
+#endif
+            int lineIndex,
+            NoteLineLayer noteLineLayer,
+            CustomData customData,
+            Version version)
+        {
+            return new CustomNoteData(
+                time,
+#if LATEST
+                beat,
+#endif
+                lineIndex,
+                noteLineLayer,
+                noteLineLayer,
+                GameplayType.Bomb,
+                ScoringType.NoScore,
+                ColorType.None,
+                NoteCutDirection.None,
+                0f,
+                0f,
+                lineIndex,
+                0f,
+                0f,
+                1f,
+                customData,
+                version);
+        }
+
         public static CustomNoteData CreateCustomBurstSliderNoteData(
             float time,
+#if LATEST
+            float beat,
+#endif
             int lineIndex,
             NoteLineLayer noteLineLayer,
             NoteLineLayer beforeJumpNoteLineLayer,
@@ -111,6 +132,9 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomNoteData(
                 time,
+#if LATEST
+                beat,
+#endif
                 lineIndex,
                 noteLineLayer,
                 beforeJumpNoteLineLayer,
@@ -132,6 +156,9 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomNoteData(
                 time,
+#if LATEST
+                beat,
+#endif
                 lineIndex,
                 noteLineLayer,
                 beforeJumpNoteLineLayer,

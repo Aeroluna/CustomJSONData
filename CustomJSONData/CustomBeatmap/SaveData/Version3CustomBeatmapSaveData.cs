@@ -5,7 +5,7 @@ using System.Linq;
 using BeatmapSaveDataVersion3;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-#if LATEST
+#if !PRE_V1_37_1
 using _Axis = BeatmapSaveDataCommon.Axis;
 using _BasicEventData = BeatmapSaveDataVersion3.BasicEventData;
 using _BasicEventTypesWithKeywords = BeatmapSaveDataCommon.BasicEventTypesWithKeywords;
@@ -30,7 +30,6 @@ using _LightRotationEventBoxGroup = BeatmapSaveDataVersion3.LightRotationEventBo
 using _LightTranslationBaseData = BeatmapSaveDataVersion3.LightTranslationBaseData;
 using _NoteColorType = BeatmapSaveDataCommon.NoteColorType;
 using _NoteCutDirection = BeatmapSaveDataCommon.NoteCutDirection;
-using _NoteLineLayer = BeatmapSaveDataCommon.NoteLineLayer;
 using _ObstacleData = BeatmapSaveDataVersion3.ObstacleData;
 using _OffsetDirection = BeatmapSaveDataCommon.OffsetDirection;
 using _RotationDirection = BeatmapSaveDataCommon.RotationDirection;
@@ -63,7 +62,6 @@ using _LightRotationEventBoxGroup = BeatmapSaveDataVersion3.BeatmapSaveData.Ligh
 using _LightTranslationBaseData = BeatmapSaveDataVersion3.BeatmapSaveData.LightTranslationBaseData;
 using _NoteColorType = BeatmapSaveDataVersion3.BeatmapSaveData.NoteColorType;
 using _NoteCutDirection = NoteCutDirection;
-using _NoteLineLayer = NoteLineLayer;
 using _ObstacleData = BeatmapSaveDataVersion3.BeatmapSaveData.ObstacleData;
 using _OffsetDirection = OffsetDirection;
 using _RotationDirection = BeatmapSaveDataVersion3.BeatmapSaveData.LightRotationBaseData.RotationDirection;
@@ -116,7 +114,7 @@ namespace CustomJSONData.CustomBeatmap
             _BasicEventTypesWithKeywords basicEventTypesWithKeywords,
             bool useNormalEventsAsCompatibleEvents,
             List<CustomEventSaveData> customEvents,
-#if !LATEST
+#if PRE_V1_37_1
             CustomData beatmapCustomData,
             CustomData levelCustomData,
 #endif
@@ -143,7 +141,7 @@ namespace CustomJSONData.CustomBeatmap
                 useNormalEventsAsCompatibleEvents)
         {
             this.version = version;
-#if !LATEST
+#if PRE_V1_37_1
             beatmapVersion = new Version(version);
             this.beatmapCustomData = beatmapCustomData;
             this.levelCustomData = levelCustomData;
@@ -156,7 +154,7 @@ namespace CustomJSONData.CustomBeatmap
 
         public CustomData customData { get; }
 
-#if !LATEST
+#if PRE_V1_37_1
         public Version beatmapVersion { get; }
 
         public CustomData beatmapCustomData { get; }
@@ -164,13 +162,13 @@ namespace CustomJSONData.CustomBeatmap
         public CustomData levelCustomData { get; }
 #endif
 
-#if LATEST
+#if !PRE_V1_37_1
         public static Version3CustomBeatmapSaveData Deserialize(string path)
 #else
         public static Version3CustomBeatmapSaveData Deserialize(string path, CustomData beatmapCustomData, CustomData levelCustomData)
 #endif
         {
-#if LATEST
+#if !PRE_V1_37_1
             string version = string.Empty;
 #else
             string version = GetVersionFromPath(path);
@@ -204,7 +202,7 @@ namespace CustomJSONData.CustomBeatmap
             CustomData data = new();
             List<CustomEventSaveData> customEvents = new();
 
-#if LATEST
+#if !PRE_V1_37_1
             using JsonTextReader reader = new(new StringReader(path));
 #else
             using JsonTextReader reader = new(new StreamReader(path));
@@ -229,7 +227,7 @@ namespace CustomJSONData.CustomBeatmap
                 basicEventTypesForKeyword,
                 useNormalEventsAsCompatibleEvents,
                 customEvents,
-#if !LATEST
+#if PRE_V1_37_1
                 new SaveDataCustomDatas(beatmapCustomData, levelCustomData, data)
 #endif
             };
@@ -244,7 +242,7 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
 
-#if LATEST
+#if !PRE_V1_37_1
                         case "_version":
                             version = reader.ReadAsString() ?? version;
                             break;
@@ -372,14 +370,14 @@ namespace CustomJSONData.CustomBeatmap
                 new _BasicEventTypesWithKeywords(basicEventTypesForKeyword),
                 useNormalEventsAsCompatibleEvents,
                 customEvents.OrderBy(n => n).ToList(),
-#if !LATEST
+#if PRE_V1_37_1
                 beatmapCustomData,
                 levelCustomData,
 #endif
                 data);
         }
 
-#if !LATEST
+#if PRE_V1_37_1
         public static string GetVersionFromPath(string path)
         {
             // SongCore has a fallback so i guess i do too

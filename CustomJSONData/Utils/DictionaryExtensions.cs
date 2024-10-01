@@ -6,7 +6,7 @@ namespace CustomJSONData
 {
     public static class DictionaryExtensions
     {
-#if LATEST
+#if !PRE_V1_37_1
         [PublicAPI]
         public static CustomData GetBeatmapCustomData(this IBeatmapLevelData beatmapLevelData, in BeatmapKey beatmapKey)
         {

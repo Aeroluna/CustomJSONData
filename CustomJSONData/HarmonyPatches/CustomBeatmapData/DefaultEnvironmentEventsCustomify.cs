@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using CustomJSONData.CustomBeatmap;
+using HarmonyLib;
+#if PRE_V1_37_1
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
+#endif
 
 namespace CustomJSONData.HarmonyPatches
 {
     [HarmonyPatch(typeof(DefaultEnvironmentEventsFactory))]
     internal static class DefaultEnvironmentEventsCustomify
     {
-#if LATEST
+#if !PRE_V1_37_1
         [HarmonyPrefix]
         [HarmonyPatch(nameof(DefaultEnvironmentEventsFactory.InsertDefaultEvents))]
         private static bool Prefix(BeatmapData beatmapData)

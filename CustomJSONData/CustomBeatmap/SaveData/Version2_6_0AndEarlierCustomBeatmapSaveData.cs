@@ -2,7 +2,7 @@
 using System.IO;
 using BeatmapSaveDataVersion2_6_0AndEarlier;
 using Newtonsoft.Json;
-#if LATEST
+#if !PRE_V1_37_1
 using _BeatmapEventType = BeatmapSaveDataCommon.BeatmapEventType;
 using _ColorType = BeatmapSaveDataVersion2_6_0AndEarlier.ColorType;
 using _EventData = BeatmapSaveDataVersion2_6_0AndEarlier.EventData;
@@ -47,7 +47,7 @@ namespace CustomJSONData.CustomBeatmap
             List<_SliderData> sliders,
             List<_WaypointData> waypoints,
             List<_ObstacleData> obstacles,
-            SpecialEventKeywordFiltersData specialEventsKeywordFilters,
+            _SpecialEventKeywordFiltersData specialEventsKeywordFilters,
             CustomData customData,
             List<CustomEventSaveData> customEvents)
             : base(
@@ -79,7 +79,7 @@ namespace CustomJSONData.CustomBeatmap
             List<_ObstacleData> obstacles = new();
             List<_SpecialEventsForKeyword> keywords = new();
 
-#if LATEST
+#if !PRE_V1_37_1
             using JsonTextReader reader = new(new StringReader(path));
 #else
             using JsonTextReader reader = new(new StreamReader(path));
@@ -158,7 +158,7 @@ namespace CustomJSONData.CustomBeatmap
                 sliders,
                 waypoints,
                 obstacles,
-                new SpecialEventKeywordFiltersData(keywords),
+                new _SpecialEventKeywordFiltersData(keywords),
                 customData,
                 customEvents);
 
@@ -435,7 +435,7 @@ namespace CustomJSONData.CustomBeatmap
             });
         }
 
-        public static void DeserializeKeywordArray(JsonReader reader, List<SpecialEventsForKeyword> list)
+        public static void DeserializeKeywordArray(JsonReader reader, List<_SpecialEventsForKeyword> list)
         {
             reader.ReadArray(() =>
             {
@@ -480,7 +480,7 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
                     }
-                }).Finish(() => list.Add(new SpecialEventsForKeyword(keyword, specialEvents)));
+                }).Finish(() => list.Add(new _SpecialEventsForKeyword(keyword, specialEvents)));
             });
         }
 

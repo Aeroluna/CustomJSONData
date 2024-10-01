@@ -4,8 +4,24 @@ namespace CustomJSONData.CustomBeatmap
 {
     public class CustomWaypointData : WaypointData, ICustomData, IVersionable
     {
-        public CustomWaypointData(float time, int lineIndex, NoteLineLayer noteLineLayer, OffsetDirection offsetDirection, CustomData customData, Version version)
-            : base(time, lineIndex, noteLineLayer, offsetDirection)
+        public CustomWaypointData(
+            float time,
+#if LATEST
+            float beat,
+#endif
+            int lineIndex,
+            NoteLineLayer noteLineLayer,
+            OffsetDirection offsetDirection,
+            CustomData customData,
+            Version version)
+            : base(
+                time,
+#if LATEST
+                beat,
+#endif
+                lineIndex,
+                noteLineLayer,
+                offsetDirection)
         {
             this.customData = customData;
             this.version = version;
@@ -17,7 +33,16 @@ namespace CustomJSONData.CustomBeatmap
 
         public override BeatmapDataItem GetCopy()
         {
-            return new CustomWaypointData(time, lineIndex, lineLayer, offsetDirection, customData.Copy(), version);
+            return new CustomWaypointData(
+                time,
+#if LATEST
+                beat,
+#endif
+                lineIndex,
+                lineLayer,
+                offsetDirection,
+                customData.Copy(),
+                version);
         }
     }
 }

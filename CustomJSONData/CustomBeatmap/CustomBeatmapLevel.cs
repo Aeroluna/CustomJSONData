@@ -1,4 +1,4 @@
-﻿#if LATEST
+﻿#if !PRE_V1_37_1
 
 namespace CustomJSONData.CustomBeatmap
 {
@@ -57,6 +57,9 @@ namespace CustomJSONData.CustomBeatmap
             EnvironmentName environmentName,
             ColorScheme beatmapColorScheme,
             int notesCount,
+#if LATEST
+            int cuttableObjectsCount,
+#endif
             int obstaclesCount,
             int bombsCount,
             string[] mappers,
@@ -69,6 +72,9 @@ namespace CustomJSONData.CustomBeatmap
                 environmentName,
                 beatmapColorScheme,
                 notesCount,
+#if LATEST
+                cuttableObjectsCount,
+#endif
                 obstaclesCount,
                 bombsCount,
                 mappers,

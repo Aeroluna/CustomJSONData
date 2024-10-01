@@ -16,7 +16,11 @@ namespace CustomJSONData.HarmonyPatches
                 .MatchForward(
                     false,
                     new CodeMatch(OpCodes.Ldloc_S),
+#if LATEST
+                    new CodeMatch(OpCodes.Callvirt),
+#else
                     new CodeMatch(OpCodes.Ldfld),
+#endif
                     new CodeMatch(OpCodes.Ldc_I4_1),
                     new CodeMatch(OpCodes.Beq));
             CodeInstruction[] duped = matcher.InstructionsWithOffsets(0, 4).Select(n => new CodeInstruction(n)).ToArray();

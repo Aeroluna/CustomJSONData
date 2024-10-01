@@ -37,7 +37,7 @@ namespace CustomJSONData.CustomBeatmap
 
         public Version version { get; }
 
-#if LATEST
+#if !PRE_V1_37_1
         public CustomData beatmapCustomData { get; internal set; }
 
         public CustomData levelCustomData { get; internal set; }

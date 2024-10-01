@@ -6,7 +6,7 @@
             float time,
             int groupId,
             int elementId,
-#if !LATEST
+#if PRE_V1_37_1
             BeatmapEventTransitionType transitionType,
 #else
             bool usePreviousValue,
@@ -24,7 +24,7 @@
                 time,
                 groupId,
                 elementId,
-#if !LATEST
+#if PRE_V1_37_1
                 transitionType,
 #else
                 usePreviousValue,
@@ -51,7 +51,7 @@
                 time,
                 groupId,
                 elementId,
-#if !LATEST
+#if PRE_V1_37_1
                 transitionType,
 #else
                 usePreviousValue,

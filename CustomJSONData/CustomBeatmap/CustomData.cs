@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;

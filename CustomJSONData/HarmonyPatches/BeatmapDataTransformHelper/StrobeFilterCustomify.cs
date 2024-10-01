@@ -42,7 +42,7 @@ namespace CustomJSONData.HarmonyPatches
                 .Repeat(n => n
                     .InsertAndAdvance(
 #pragma warning disable SA1114
-#if LATEST
+#if !PRE_V1_37_1
                         new CodeInstruction(OpCodes.Ldloc_S, 7))
 #else
                         new CodeInstruction(OpCodes.Ldloc_S, 5))

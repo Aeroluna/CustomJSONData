@@ -9,6 +9,9 @@ namespace CustomJSONData.CustomBeatmap
             ColorType colorType,
             bool hasHeadNote,
             float headTime,
+#if LATEST
+            float headBeat,
+#endif
             int headLineIndex,
             NoteLineLayer headLineLayer,
             NoteLineLayer headBeforeJumpLineLayer,
@@ -33,6 +36,9 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 hasHeadNote,
                 headTime,
+#if LATEST
+                headBeat,
+#endif
                 headLineIndex,
                 headLineLayer,
                 headBeforeJumpLineLayer,
@@ -62,6 +68,9 @@ namespace CustomJSONData.CustomBeatmap
         public static SliderData CreateCustomSliderData(
             ColorType colorType,
             float headTime,
+#if LATEST
+            float headBeat,
+#endif
             int headLineIndex,
             NoteLineLayer headLineLayer,
             NoteLineLayer headBeforeJumpLineLayer,
@@ -82,6 +91,9 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 false,
                 headTime,
+#if LATEST
+                headBeat,
+#endif
                 headLineIndex,
                 headLineLayer,
                 headBeforeJumpLineLayer,
@@ -106,6 +118,9 @@ namespace CustomJSONData.CustomBeatmap
         public static SliderData CreateCustomBurstSliderData(
             ColorType colorType,
             float headTime,
+#if LATEST
+            float headBeat,
+#endif
             int headLineIndex,
             NoteLineLayer headLineLayer,
             NoteLineLayer headBeforeJumpLineLayer,
@@ -124,6 +139,9 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 false,
                 headTime,
+#if LATEST
+                headBeat,
+#endif
                 headLineIndex,
                 headLineLayer,
                 headBeforeJumpLineLayer,
@@ -152,6 +170,9 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 hasHeadNote,
                 time,
+#if LATEST
+                beat,
+#endif
                 headLineIndex,
                 headLineLayer,
                 headBeforeJumpLineLayer,
