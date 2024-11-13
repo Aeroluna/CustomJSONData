@@ -9,6 +9,7 @@ namespace CustomJSONData.CustomBeatmap
 #if LATEST
             float startBeat,
             float endBeat,
+            int rotation,
 #endif
             int lineIndex,
             NoteLineLayer lineLayer,
@@ -22,6 +23,7 @@ namespace CustomJSONData.CustomBeatmap
 #if LATEST
                 startBeat,
                 endBeat,
+                rotation,
 #endif
                 lineIndex,
                 lineLayer,
@@ -44,6 +46,7 @@ namespace CustomJSONData.CustomBeatmap
 #if LATEST
                 beat,
                 endBeat,
+                rotation,
 #endif
                 lineIndex,
                 lineLayer,

@@ -11,6 +11,7 @@ namespace CustomJSONData.CustomBeatmap
             float headTime,
 #if LATEST
             float headBeat,
+            int rotation,
 #endif
             int headLineIndex,
             NoteLineLayer headLineLayer,
@@ -20,6 +21,7 @@ namespace CustomJSONData.CustomBeatmap
             float headCutDirectionAngleOffset,
             bool hasTailNote,
             float tailTime,
+            int tailRotation,
             int tailLineIndex,
             NoteLineLayer tailLineLayer,
             NoteLineLayer tailBeforeJumpLineLayer,
@@ -38,6 +40,7 @@ namespace CustomJSONData.CustomBeatmap
                 headTime,
 #if LATEST
                 headBeat,
+                rotation,
 #endif
                 headLineIndex,
                 headLineLayer,
@@ -47,6 +50,9 @@ namespace CustomJSONData.CustomBeatmap
                 headCutDirectionAngleOffset,
                 hasTailNote,
                 tailTime,
+#if LATEST
+                tailRotation,
+#endif
                 tailLineIndex,
                 tailLineLayer,
                 tailBeforeJumpLineLayer,
@@ -70,6 +76,7 @@ namespace CustomJSONData.CustomBeatmap
             float headTime,
 #if LATEST
             float headBeat,
+            int rotation,
 #endif
             int headLineIndex,
             NoteLineLayer headLineLayer,
@@ -77,6 +84,9 @@ namespace CustomJSONData.CustomBeatmap
             float headControlPointLengthMultiplier,
             NoteCutDirection headCutDirection,
             float tailTime,
+#if LATEST
+            int tailRotation,
+#endif
             int tailLineIndex,
             NoteLineLayer tailLineLayer,
             NoteLineLayer tailBeforeJumpLineLayer,
@@ -93,6 +103,7 @@ namespace CustomJSONData.CustomBeatmap
                 headTime,
 #if LATEST
                 headBeat,
+                rotation,
 #endif
                 headLineIndex,
                 headLineLayer,
@@ -102,6 +113,9 @@ namespace CustomJSONData.CustomBeatmap
                 0,
                 false,
                 tailTime,
+#if LATEST
+                tailRotation,
+#endif
                 tailLineIndex,
                 tailLineLayer,
                 tailBeforeJumpLineLayer,
@@ -120,12 +134,16 @@ namespace CustomJSONData.CustomBeatmap
             float headTime,
 #if LATEST
             float headBeat,
+            int rotation,
 #endif
             int headLineIndex,
             NoteLineLayer headLineLayer,
             NoteLineLayer headBeforeJumpLineLayer,
             NoteCutDirection headCutDirection,
             float tailTime,
+#if LATEST
+            int tailRotation,
+#endif
             int tailLineIndex,
             NoteLineLayer tailLineLayer,
             NoteLineLayer tailBeforeJumpLineLayer,
@@ -141,6 +159,7 @@ namespace CustomJSONData.CustomBeatmap
                 headTime,
 #if LATEST
                 headBeat,
+                rotation,
 #endif
                 headLineIndex,
                 headLineLayer,
@@ -150,6 +169,9 @@ namespace CustomJSONData.CustomBeatmap
                 0,
                 false,
                 tailTime,
+#if LATEST
+                tailRotation,
+#endif
                 tailLineIndex,
                 tailLineLayer,
                 tailBeforeJumpLineLayer,
@@ -172,6 +194,7 @@ namespace CustomJSONData.CustomBeatmap
                 time,
 #if LATEST
                 beat,
+                rotation,
 #endif
                 headLineIndex,
                 headLineLayer,
@@ -181,6 +204,9 @@ namespace CustomJSONData.CustomBeatmap
                 headCutDirectionAngleOffset,
                 hasTailNote,
                 tailTime,
+#if LATEST
+                tailRotation,
+#endif
                 tailLineIndex,
                 tailLineLayer,
                 tailBeforeJumpLineLayer,

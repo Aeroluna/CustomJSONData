@@ -5,6 +5,9 @@ using System.Reflection.Emit;
 using BeatmapSaveDataCommon;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+#if LATEST
+using UnityEngine;
+#endif
 
 namespace CustomJSONData.HarmonyPatches
 {
@@ -34,8 +37,10 @@ namespace CustomJSONData.HarmonyPatches
         private static readonly ConstructorInfo _bpmEventCtor = AccessTools.FirstConstructor(typeof(BPMChangeBeatmapEventData), _ => true);
         private static readonly ConstructorInfo _customBpmEventCtor = AccessTools.FirstConstructor(typeof(CustomBPMChangeBeatmapEventData), _ => true);
 
+#if !LATEST
         private static readonly ConstructorInfo _rotationEventCtor = AccessTools.FirstConstructor(typeof(SpawnRotationBeatmapEventData), _ => true);
         private static readonly ConstructorInfo _customRotationEventCtor = AccessTools.FirstConstructor(typeof(CustomSpawnRotationBeatmapEventdata), _ => true);
+#endif
 
         private static readonly ConstructorInfo _basicEventCtor = AccessTools.FirstConstructor(typeof(BasicBeatmapEventData), _ => true);
         private static readonly ConstructorInfo _customBasicEventCtor = AccessTools.FirstConstructor(typeof(CustomBasicBeatmapEventData), _ => true);
@@ -148,6 +153,7 @@ namespace CustomJSONData.HarmonyPatches
             return instructions.ReplaceCtor(_version3, _bpmEventCtor, _customBpmEventCtor);
         }
 
+#if !LATEST
         [HarmonyTranspiler]
         [HarmonyPatch(
             typeof(BeatmapDataLoaderVersion3.BeatmapDataLoader.RotationEventConverter),
@@ -156,6 +162,7 @@ namespace CustomJSONData.HarmonyPatches
         {
             return instructions.ReplaceCtor(_version3, _rotationEventCtor, _customRotationEventCtor);
         }
+#endif
 
         [HarmonyTranspiler]
         [HarmonyPatch(
@@ -220,21 +227,32 @@ namespace CustomJSONData.HarmonyPatches
         private static bool ObstacleConvertV2_6_0AndEarlier(
             BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ObstacleConverter __instance,
             BeatmapSaveDataVersion2_6_0AndEarlier.ObstacleData o,
-            ref ObstacleData __result)
+            ref ObstacleData? __result)
         {
-            float time1 = __instance.BeatToTime(o.time);
-            float time2 = __instance.BeatToTime(o.time + o.duration);
+            float time = __instance.BeatToTime(o.time);
+            float endBeat = o.time + o.duration;
+            float duration = __instance.BeatToTime(endBeat) - time;
+
+#if LATEST
+            if (o.width < 0 || duration < Mathf.Epsilon)
+            {
+                __result = null;
+                return false;
+            }
+#endif
+
             __result = new CustomObstacleData(
-                time1,
+                time,
 #if LATEST
                 o.time,
-                o.time + o.duration,
+                endBeat,
+                __instance.BeatToRotation(o.time),
 #endif
                 o.lineIndex,
                 BeatmapTypeConverters.ConvertNoteLineLayer(
                     BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ObstacleConverter
                         .GetLayerForObstacleType(o.type)),
-                time2 - time1,
+                duration,
                 o.width,
                 BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.ObstacleConverter
                     .GetHeightForObstacleType(o.type),
@@ -268,13 +286,13 @@ namespace CustomJSONData.HarmonyPatches
         private static IEnumerable<CodeInstruction> BasicEventConvertV2_6_0AndEarlier(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Newobj, _rotationEventCtor))
+                /*.MatchForward(false, new CodeMatch(OpCodes.Newobj, _rotationEventCtor))
                 .Repeat(n => n
                     .InsertAndAdvance(
                         new CodeInstruction(OpCodes.Ldarg_1),
                         new CodeInstruction(OpCodes.Call, _getData),
                         new CodeInstruction(OpCodes.Ldsfld, _version2))
-                    .SetOperandAndAdvance(_customRotationEventCtor))
+                    .SetOperandAndAdvance(_customRotationEventCtor))*/
                 .Start()
                 .MatchForward(false, new CodeMatch(OpCodes.Newobj, _colorBoostEventCtor))
                 .InsertAndAdvance(

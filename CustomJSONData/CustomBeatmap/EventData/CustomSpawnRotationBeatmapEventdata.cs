@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !LATEST
+using System;
 
 namespace CustomJSONData.CustomBeatmap
 {
@@ -31,3 +32,4 @@ namespace CustomJSONData.CustomBeatmap
         }
     }
 }
+#endif
