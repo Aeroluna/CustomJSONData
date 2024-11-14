@@ -21,7 +21,9 @@ namespace CustomJSONData.CustomBeatmap
             float headCutDirectionAngleOffset,
             bool hasTailNote,
             float tailTime,
+#if LATEST
             int tailRotation,
+#endif
             int tailLineIndex,
             NoteLineLayer tailLineLayer,
             NoteLineLayer tailBeforeJumpLineLayer,
