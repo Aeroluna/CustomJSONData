@@ -147,7 +147,11 @@ namespace CustomJSONData.CustomBeatmap
                 noteLineLayer,
                 beforeJumpNoteLineLayer,
                 GameplayType.BurstSliderElement,
+#if LATEST
+                ScoringType.ChainLink,
+#else
                 ScoringType.BurstSliderElement,
+#endif
                 colorType,
                 cutDirection,
                 0f,
