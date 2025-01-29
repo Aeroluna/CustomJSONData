@@ -25,8 +25,7 @@ namespace CustomJSONData.CustomBeatmap
         [PublicAPI]
         public static CustomData FromJSON(string jsonString)
         {
-            using MemoryStream stream = new(Encoding.UTF8.GetBytes(jsonString));
-            using JsonTextReader reader = new(new StreamReader(jsonString));
+            using JsonTextReader reader = new(new StringReader(jsonString));
             return FromJSON(reader);
         }
 
