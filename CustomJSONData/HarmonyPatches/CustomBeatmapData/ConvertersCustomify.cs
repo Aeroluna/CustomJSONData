@@ -5,9 +5,6 @@ using System.Reflection.Emit;
 using BeatmapSaveDataCommon;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
-#if !PRE_V1_39_1
-using UnityEngine;
-#endif
 
 namespace CustomJSONData.HarmonyPatches
 {
