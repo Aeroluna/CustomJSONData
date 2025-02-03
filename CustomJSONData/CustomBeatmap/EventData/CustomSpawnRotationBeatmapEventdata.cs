@@ -1,4 +1,4 @@
-﻿#if !LATEST
+﻿#if PRE_V1_39_1
 using System;
 
 namespace CustomJSONData.CustomBeatmap

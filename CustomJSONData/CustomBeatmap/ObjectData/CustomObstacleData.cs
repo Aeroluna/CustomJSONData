@@ -6,7 +6,7 @@ namespace CustomJSONData.CustomBeatmap
     {
         public CustomObstacleData(
             float time,
-#if LATEST
+#if !PRE_V1_39_1
             float startBeat,
             float endBeat,
             int rotation,
@@ -20,7 +20,7 @@ namespace CustomJSONData.CustomBeatmap
             Version version)
             : base(
                 time,
-#if LATEST
+#if !PRE_V1_39_1
                 startBeat,
                 endBeat,
                 rotation,
@@ -43,7 +43,7 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomObstacleData(
                 time,
-#if LATEST
+#if !PRE_V1_39_1
                 beat,
                 endBeat,
                 rotation,

@@ -6,7 +6,7 @@ namespace CustomJSONData.CustomBeatmap
     {
         public CustomNoteData(
             float time,
-#if LATEST
+#if !PRE_V1_39_1
             float beat,
             int rotation,
 #endif
@@ -27,7 +27,7 @@ namespace CustomJSONData.CustomBeatmap
             Version version)
             : base(
                 time,
-#if LATEST
+#if !PRE_V1_39_1
                 beat,
                 rotation,
 #endif
@@ -55,7 +55,7 @@ namespace CustomJSONData.CustomBeatmap
 
         public static CustomNoteData CreateCustomBasicNoteData(
             float time,
-#if LATEST
+#if !PRE_V1_39_1
             float beat,
             int rotation,
 #endif
@@ -68,7 +68,7 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomNoteData(
                 time,
-#if LATEST
+#if !PRE_V1_39_1
                 beat,
                 rotation,
 #endif
@@ -91,7 +91,7 @@ namespace CustomJSONData.CustomBeatmap
 
         public static CustomNoteData CreateCustomBombNoteData(
             float time,
-#if LATEST
+#if !PRE_V1_39_1
             float beat,
             int rotation,
 #endif
@@ -102,7 +102,7 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomNoteData(
                 time,
-#if LATEST
+#if !PRE_V1_39_1
                 beat,
                 rotation,
 #endif
@@ -125,7 +125,7 @@ namespace CustomJSONData.CustomBeatmap
 
         public static CustomNoteData CreateCustomBurstSliderNoteData(
             float time,
-#if LATEST
+#if !PRE_V1_39_1
             float beat,
             int rotation,
 #endif
@@ -139,7 +139,7 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomNoteData(
                 time,
-#if LATEST
+#if !PRE_V1_39_1
                 beat,
                 rotation,
 #endif
@@ -168,7 +168,7 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomNoteData(
                 time,
-#if LATEST
+#if !PRE_V1_39_1
                 beat,
                 rotation,
 #endif

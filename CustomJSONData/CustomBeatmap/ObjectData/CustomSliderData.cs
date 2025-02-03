@@ -9,7 +9,7 @@ namespace CustomJSONData.CustomBeatmap
             ColorType colorType,
             bool hasHeadNote,
             float headTime,
-#if LATEST
+#if !PRE_V1_39_1
             float headBeat,
             int rotation,
 #endif
@@ -21,7 +21,7 @@ namespace CustomJSONData.CustomBeatmap
             float headCutDirectionAngleOffset,
             bool hasTailNote,
             float tailTime,
-#if LATEST
+#if !PRE_V1_39_1
             int tailRotation,
 #endif
             int tailLineIndex,
@@ -40,7 +40,7 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 hasHeadNote,
                 headTime,
-#if LATEST
+#if !PRE_V1_39_1
                 headBeat,
                 rotation,
 #endif
@@ -52,7 +52,7 @@ namespace CustomJSONData.CustomBeatmap
                 headCutDirectionAngleOffset,
                 hasTailNote,
                 tailTime,
-#if LATEST
+#if !PRE_V1_39_1
                 tailRotation,
 #endif
                 tailLineIndex,
@@ -76,7 +76,7 @@ namespace CustomJSONData.CustomBeatmap
         public static SliderData CreateCustomSliderData(
             ColorType colorType,
             float headTime,
-#if LATEST
+#if !PRE_V1_39_1
             float headBeat,
             int rotation,
 #endif
@@ -86,7 +86,7 @@ namespace CustomJSONData.CustomBeatmap
             float headControlPointLengthMultiplier,
             NoteCutDirection headCutDirection,
             float tailTime,
-#if LATEST
+#if !PRE_V1_39_1
             int tailRotation,
 #endif
             int tailLineIndex,
@@ -103,7 +103,7 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 false,
                 headTime,
-#if LATEST
+#if !PRE_V1_39_1
                 headBeat,
                 rotation,
 #endif
@@ -115,7 +115,7 @@ namespace CustomJSONData.CustomBeatmap
                 0,
                 false,
                 tailTime,
-#if LATEST
+#if !PRE_V1_39_1
                 tailRotation,
 #endif
                 tailLineIndex,
@@ -134,7 +134,7 @@ namespace CustomJSONData.CustomBeatmap
         public static SliderData CreateCustomBurstSliderData(
             ColorType colorType,
             float headTime,
-#if LATEST
+#if !PRE_V1_39_1
             float headBeat,
             int rotation,
 #endif
@@ -143,7 +143,7 @@ namespace CustomJSONData.CustomBeatmap
             NoteLineLayer headBeforeJumpLineLayer,
             NoteCutDirection headCutDirection,
             float tailTime,
-#if LATEST
+#if !PRE_V1_39_1
             int tailRotation,
 #endif
             int tailLineIndex,
@@ -159,7 +159,7 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 false,
                 headTime,
-#if LATEST
+#if !PRE_V1_39_1
                 headBeat,
                 rotation,
 #endif
@@ -171,7 +171,7 @@ namespace CustomJSONData.CustomBeatmap
                 0,
                 false,
                 tailTime,
-#if LATEST
+#if !PRE_V1_39_1
                 tailRotation,
 #endif
                 tailLineIndex,
@@ -194,7 +194,7 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 hasHeadNote,
                 time,
-#if LATEST
+#if !PRE_V1_39_1
                 beat,
                 rotation,
 #endif
@@ -206,7 +206,7 @@ namespace CustomJSONData.CustomBeatmap
                 headCutDirectionAngleOffset,
                 hasTailNote,
                 tailTime,
-#if LATEST
+#if !PRE_V1_39_1
                 tailRotation,
 #endif
                 tailLineIndex,

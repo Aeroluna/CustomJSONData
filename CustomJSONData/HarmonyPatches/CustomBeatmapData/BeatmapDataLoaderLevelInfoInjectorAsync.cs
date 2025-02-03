@@ -70,10 +70,10 @@ namespace CustomJSONData.HarmonyPatches
                     new CodeInstruction(OpCodes.Ldfld, _beatmapLevelData),
                     new CodeInstruction(OpCodes.Ldarg_0),
                     new CodeInstruction(OpCodes.Ldfld, _beatmapKey),
-#if LATEST
-                    new CodeInstruction(OpCodes.Ldloc_S, 12),
-#else
+#if PRE_V1_39_1
                     new CodeInstruction(OpCodes.Ldloc_S, 11),
+#else
+                    new CodeInstruction(OpCodes.Ldloc_S, 12),
 #endif
                     new CodeInstruction(OpCodes.Call, _injectCustomData),
                     new CodeInstruction(OpCodes.Ldarg_0))
