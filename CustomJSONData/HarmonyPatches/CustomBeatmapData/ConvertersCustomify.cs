@@ -230,17 +230,6 @@ namespace CustomJSONData.HarmonyPatches
             float endBeat = o.time + o.duration;
             float duration = __instance.BeatToTime(endBeat) - time;
 
-            // removed in 1.40.1 anyways :3
-/*#if LATEST
-            // https://github.com/Kylemc1413/SongCore/blob/master/source/SongCore/Patches/AllowNegativeObstacleSizeAndDurationPatch.cs
-            // match songcore patch by commenting this out
-            if (o.width < 0 || duration < Mathf.Epsilon)
-            {
-                __result = null;
-                return false;
-            }
-#endif*/
-
             __result = new CustomObstacleData(
                 time,
 #if !PRE_V1_39_1
