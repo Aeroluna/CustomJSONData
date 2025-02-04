@@ -12,7 +12,7 @@
     <PluginId>CustomJSONData</PluginId>
     <PluginName>CustomJSONData</PluginName>
     <Author>Aeroluna</Author>
-    <Version>2.6.6</Version>
+    <Version>2.6.7</Version>
     <Description>Lets mappers include arbitrary data in beatmaps, and lets modders access that data. Why did I make this? Good question.</Description>
   </PropertyGroup>
   <ItemGroup>
