@@ -15,7 +15,8 @@ namespace CustomJSONData.CustomBeatmap
             Version2_6_0AndEarlierCustomBeatmapSaveData oldSaveData = Version2_6_0AndEarlierCustomBeatmapSaveData.Deserialize(path);
 
             // wtf
-            if (new Version(oldSaveData.version).CompareTo(new Version("2.5.0")) < 0)
+            if (string.IsNullOrEmpty(oldSaveData.version) ||
+                new Version(oldSaveData.version).CompareTo(new Version("2.5.0")) < 0)
             {
                 oldSaveData.ConvertBeatmapSaveDataPreV2_5_0();
             }

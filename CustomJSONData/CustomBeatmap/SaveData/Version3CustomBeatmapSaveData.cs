@@ -142,7 +142,7 @@ namespace CustomJSONData.CustomBeatmap
         {
             this.version = version;
 #if PRE_V1_37_1
-            beatmapVersion = new Version(version);
+            beatmapVersion = string.IsNullOrEmpty(version) ? VersionExtensions.noVersion : new Version(version);
             this.beatmapCustomData = beatmapCustomData;
             this.levelCustomData = levelCustomData;
 #endif
@@ -173,7 +173,8 @@ namespace CustomJSONData.CustomBeatmap
 #else
             string version = GetVersionFromPath(path);
 
-            if (new Version(version).CompareTo(version2_6_0) <= 0)
+            if (string.IsNullOrEmpty(version) ||
+                new Version(version).CompareTo(version2_6_0) <= 0)
             {
                 return SaveData2_6_0Converter.Convert2_6_0AndEarlier(path, beatmapCustomData, levelCustomData);
             }
@@ -381,8 +382,6 @@ namespace CustomJSONData.CustomBeatmap
         public static string GetVersionFromPath(string path)
         {
             // SongCore has a fallback so i guess i do too
-            const string fallback = "2.0.0";
-
             // cant think of a better way than opening a streamreader
             using JsonTextReader reader = new(new StreamReader(path));
             while (reader.Read())
@@ -402,8 +401,8 @@ namespace CustomJSONData.CustomBeatmap
                 }
             }
 
-            Plugin.Log.Debug($"[{path}] does not contain a version, falling back to [{fallback}]");
-            return fallback;
+            Plugin.Log.Debug($"[{path}] does not contain a version");
+            return string.Empty;
         }
 #endif
 
