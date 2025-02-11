@@ -100,7 +100,6 @@ namespace CustomJSONData.CustomBeatmap
 
         [PublicAPI]
         public T? GetStringToEnum<T>(string key)
-            where T : Enum
         {
             return TryGetStringToEnum(key, out T? result) ? result : default;
         }
@@ -139,7 +138,6 @@ namespace CustomJSONData.CustomBeatmap
         }
 
         private bool TryGetStringToEnum<T>(string key, [NotNullWhen(true)] out T? result)
-            where T : Enum
         {
             if (!TryGetValue(key, out object? value) || value == null)
             {
