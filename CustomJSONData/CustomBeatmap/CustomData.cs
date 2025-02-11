@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -45,45 +46,12 @@ namespace CustomJSONData.CustomBeatmap
         [PublicAPI]
         public T GetRequired<T>(string key)
         {
-            return Get<T?>(key) ?? throw new JsonNotDefinedException(key);
+            return TryGet(key, out T? result) ? result : throw new JsonNotDefinedException(key);
         }
 
         public T? Get<T>(string key)
         {
-            // trygetvalue missing [notnullwhen] attribute :(
-            if (!TryGetValue(key, out object? value) || value == null)
-            {
-                return default;
-            }
-
-            Type resultType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
-            if (IsNumericType(value))
-            {
-                return (T)Convert.ChangeType(value, resultType);
-            }
-
-            return (T)value;
-
-            static bool IsNumericType(object o)
-            {
-                switch (Type.GetTypeCode(o.GetType()))
-                {
-                    case TypeCode.Byte:
-                    case TypeCode.SByte:
-                    case TypeCode.UInt16:
-                    case TypeCode.UInt32:
-                    case TypeCode.UInt64:
-                    case TypeCode.Int16:
-                    case TypeCode.Int32:
-                    case TypeCode.Int64:
-                    case TypeCode.Decimal:
-                    case TypeCode.Double:
-                    case TypeCode.Single:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
+            return TryGet(key, out T? result) ? result : default;
         }
 
         [PublicAPI]
@@ -125,25 +93,16 @@ namespace CustomJSONData.CustomBeatmap
 
         [PublicAPI]
         public T GetStringToEnumRequired<T>(string key)
+            where T : Enum
         {
-            return GetStringToEnum<T?>(key) ?? throw new JsonNotDefinedException(key);
+            return TryGetStringToEnum(key, out T? result) ? result : throw new JsonNotDefinedException(key);
         }
 
         [PublicAPI]
         public T? GetStringToEnum<T>(string key)
+            where T : Enum
         {
-            if (!TryGetValue(key, out object? value) || value == null)
-            {
-                return default;
-            }
-
-            Type? underlyingType = Nullable.GetUnderlyingType(typeof(T));
-            if (underlyingType != null)
-            {
-                return (T)Enum.Parse(underlyingType, (string)value);
-            }
-
-            return (T)Enum.Parse(typeof(T), (string)value);
+            return TryGetStringToEnum(key, out T? result) ? result : default;
         }
 
         public override string ToString()
@@ -177,6 +136,63 @@ namespace CustomJSONData.CustomBeatmap
                 CustomData dictionary => FormatDictionary(dictionary, indent),
                 _ => obj?.ToString() ?? "NULL"
             };
+        }
+
+        private bool TryGetStringToEnum<T>(string key, [NotNullWhen(true)] out T? result)
+            where T : Enum
+        {
+            if (!TryGetValue(key, out object? value) || value == null)
+            {
+                result = default;
+                return false;
+            }
+
+            Type? underlyingType = Nullable.GetUnderlyingType(typeof(T));
+            if (underlyingType != null)
+            {
+                result = (T)Enum.Parse(underlyingType, (string)value);
+            }
+            else
+            {
+                result = (T)Enum.Parse(typeof(T), (string)value);
+            }
+
+            return true;
+        }
+
+        private bool TryGet<T>(string key, [NotNullWhen(true)] out T? result)
+        {
+            if (!TryGetValue(key, out object? value) || value == null)
+            {
+                result = default;
+                return false;
+            }
+
+            Type resultType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+            if (Type.GetTypeCode(value.GetType()) switch
+                {
+                    TypeCode.Byte
+                        or TypeCode.SByte
+                        or TypeCode.UInt16
+                        or TypeCode.UInt32
+                        or TypeCode.UInt64
+                        or TypeCode.Int16
+                        or TypeCode.Int32
+                        or TypeCode.Int64
+                        or TypeCode.Decimal
+                        or TypeCode.Double
+                        or TypeCode.Single => true,
+                    _ => false
+                })
+            {
+                result = (T)Convert.ChangeType(value, resultType);
+            }
+            else
+            {
+                result = (T)value;
+            }
+
+            return true;
         }
     }
 }
