@@ -6,7 +6,7 @@ namespace System.Diagnostics.CodeAnalysis
     ///     corresponding type allows it.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class NotNullWhenAttribute : Attribute
+    internal sealed class NotNullWhenAttribute : Attribute
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="NotNullWhenAttribute" /> class with the specified return value
