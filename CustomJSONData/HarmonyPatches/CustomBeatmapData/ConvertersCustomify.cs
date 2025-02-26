@@ -105,13 +105,43 @@ namespace CustomJSONData.HarmonyPatches
             return instructions.ReplaceMethod(_version3, _createBombNoteData, _createCustomBombNoteData);
         }
 
-        [HarmonyTranspiler]
+        /*[HarmonyTranspiler]
         [HarmonyPatch(
             typeof(BeatmapDataLoaderVersion3.BeatmapDataLoader.ObstacleConverter),
             nameof(BeatmapDataLoaderVersion3.BeatmapDataLoader.ObstacleConverter.Convert))]
         private static IEnumerable<CodeInstruction> ObstacleConvertV3(IEnumerable<CodeInstruction> instructions)
         {
             return instructions.ReplaceCtor(_version3, _obstacleDataCtor, _customObstacleDataCtor);
+        }*/
+
+        [HarmonyPrefix]
+        [HarmonyPatch(
+            typeof(BeatmapDataLoaderVersion3.BeatmapDataLoader.ObstacleConverter),
+            nameof(BeatmapDataLoaderVersion3.BeatmapDataLoader.ObstacleConverter.Convert))]
+        private static bool ObstacleConvertV3(
+            BeatmapDataLoaderVersion3.BeatmapDataLoader.ObstacleConverter __instance,
+            BeatmapSaveDataVersion3.ObstacleData obstacleSaveData,
+            ref BeatmapObjectData? __result)
+        {
+            float time = __instance.BeatToTime(obstacleSaveData.beat);
+            float endBeat = obstacleSaveData.beat + obstacleSaveData.duration;
+            float duration = __instance.BeatToTime(endBeat) - time;
+
+            __result = new CustomObstacleData(
+                time,
+#if !PRE_V1_39_1
+                obstacleSaveData.beat,
+                endBeat,
+                __instance.BeatToRotation(obstacleSaveData.beat),
+#endif
+                obstacleSaveData.line,
+                BeatmapDataLoaderVersion3.BeatmapDataLoader.ObstacleConverter.GetNoteLineLayer(obstacleSaveData.layer),
+                duration,
+                obstacleSaveData.width,
+                obstacleSaveData.height,
+                obstacleSaveData.GetData(),
+                BeatmapSaveDataHelpers.version3);
+            return false;
         }
 
         [HarmonyTranspiler]
