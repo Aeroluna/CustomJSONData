@@ -1,4 +1,4 @@
-﻿#if PRE_V1_39_1
+﻿#if PRE_V1_40_8
 using System;
 
 namespace CustomJSONData.CustomBeatmap

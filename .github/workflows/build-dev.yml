@@ -1,10 +1,10 @@
-name: Build
+name: Build Dev
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "dev" ]
     paths:
-    - .github/workflows/build.yml
+    - .github/workflows/build-dev.yml
     - CustomJSONData/**
     - CustomJSONData.sln
 
@@ -18,14 +18,4 @@ jobs:
     with:
       project-path: CustomJSONData/CustomJSONData.csproj
       game-version: ${{ matrix.game-version }}
-    secrets: inherit
-
-  create_release:
-    name: Create Release
-    needs: build
-    permissions:
-      contents: write
-    uses: Aeroluna/workflows/.github/workflows/bs-create-release-from-project.yml@main
-    with:
-      project-path: CustomJSONData/CustomJSONData.csproj
     secrets: inherit

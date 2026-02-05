@@ -16,7 +16,7 @@ namespace CustomJSONData.HarmonyPatches
                 .MatchForward(
                     false,
                     new CodeMatch(OpCodes.Ldloc_S),
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
                     new CodeMatch(OpCodes.Callvirt),
 #else
                     new CodeMatch(OpCodes.Ldfld),

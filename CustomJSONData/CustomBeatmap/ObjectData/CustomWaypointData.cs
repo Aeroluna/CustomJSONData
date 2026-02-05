@@ -6,7 +6,7 @@ namespace CustomJSONData.CustomBeatmap
     {
         public CustomWaypointData(
             float time,
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
             float beat,
             int rotation,
 #endif
@@ -17,7 +17,7 @@ namespace CustomJSONData.CustomBeatmap
             Version version)
             : base(
                 time,
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
                 beat,
                 rotation,
 #endif
@@ -37,7 +37,7 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomWaypointData(
                 time,
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
                 beat,
                 rotation,
 #endif

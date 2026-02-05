@@ -34,7 +34,7 @@ namespace CustomJSONData.HarmonyPatches
         private static readonly ConstructorInfo _bpmEventCtor = AccessTools.FirstConstructor(typeof(BPMChangeBeatmapEventData), _ => true);
         private static readonly ConstructorInfo _customBpmEventCtor = AccessTools.FirstConstructor(typeof(CustomBPMChangeBeatmapEventData), _ => true);
 
-#if PRE_V1_39_1
+#if PRE_V1_40_8
         private static readonly ConstructorInfo _rotationEventCtor = AccessTools.FirstConstructor(typeof(SpawnRotationBeatmapEventData), _ => true);
         private static readonly ConstructorInfo _customRotationEventCtor = AccessTools.FirstConstructor(typeof(CustomSpawnRotationBeatmapEventdata), _ => true);
 #endif
@@ -150,7 +150,7 @@ namespace CustomJSONData.HarmonyPatches
             return instructions.ReplaceCtor(_version3, _bpmEventCtor, _customBpmEventCtor);
         }
 
-#if PRE_V1_39_1
+#if PRE_V1_40_8
         [HarmonyTranspiler]
         [HarmonyPatch(
             typeof(BeatmapDataLoaderVersion3.BeatmapDataLoader.RotationEventConverter),
@@ -232,7 +232,7 @@ namespace CustomJSONData.HarmonyPatches
 
             __result = new CustomObstacleData(
                 time,
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
                 o.time,
                 endBeat,
                 __instance.BeatToRotation(o.time),

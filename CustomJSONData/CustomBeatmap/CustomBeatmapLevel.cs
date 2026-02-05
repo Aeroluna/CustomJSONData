@@ -57,7 +57,7 @@ namespace CustomJSONData.CustomBeatmap
             EnvironmentName environmentName,
             ColorScheme beatmapColorScheme,
             int notesCount,
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
             int cuttableObjectsCount,
 #endif
             int obstaclesCount,
@@ -72,7 +72,7 @@ namespace CustomJSONData.CustomBeatmap
                 environmentName,
                 beatmapColorScheme,
                 notesCount,
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
                 cuttableObjectsCount,
 #endif
                 obstaclesCount,

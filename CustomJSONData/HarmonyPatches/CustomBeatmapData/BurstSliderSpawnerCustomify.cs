@@ -26,7 +26,7 @@ namespace CustomJSONData.HarmonyPatches
 
         private static NoteData CreateCustomBurstSliderNoteData(
             float time,
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
             float beat,
             int rotation,
 #endif
@@ -42,7 +42,7 @@ namespace CustomJSONData.HarmonyPatches
             {
                 return CustomNoteData.CreateCustomBurstSliderNoteData(
                     time,
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
                     beat,
                     rotation,
 #endif
@@ -57,7 +57,7 @@ namespace CustomJSONData.HarmonyPatches
 
             return NoteData.CreateBurstSliderNoteData(
                 time,
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
                 beat,
                 rotation,
 #endif
