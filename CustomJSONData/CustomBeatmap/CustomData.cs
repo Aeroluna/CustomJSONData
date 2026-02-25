@@ -27,6 +27,7 @@ namespace CustomJSONData.CustomBeatmap
         public static CustomData FromJSON(string jsonString)
         {
             using JsonTextReader reader = new(new StringReader(jsonString));
+            reader.Read();
             return FromJSON(reader);
         }
 
