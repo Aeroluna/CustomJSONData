@@ -1,7 +1,10 @@
 ﻿#if !PRE_V1_37_1
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using BeatmapSaveDataCommon;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
@@ -47,6 +50,37 @@ namespace CustomJSONData.HarmonyPatches
 
         private static readonly FieldInfo _version2 = AccessTools.Field(typeof(BeatmapSaveDataHelpers), nameof(BeatmapSaveDataHelpers.version2));
         private static readonly FieldInfo _version3 = AccessTools.Field(typeof(BeatmapSaveDataHelpers), nameof(BeatmapSaveDataHelpers.version3));
+
+        // V3 GLS color custom data: why we can't use the standard ReplaceCtor transpiler pattern
+        // -----------------------------------------------------------------------------------------
+        // For simple converters (BasicEventConverter, ObstacleConverter, etc.) the standard
+        // ReplaceCtor transpiler works because:
+        //   - Convert(SaveDataItem saveData) takes the ICustomData item as Ldarg_1
+        //   - The method directly calls `newobj XxxBeatmapEventData(...)` so we can insert
+        //     Ldarg_1.GetData() + version before the newobj.
+        //
+        // For V3 GLS, LightColorBeatmapEventData instances are NOT created in
+        // LightColorEventBoxConverter.Convert. Instead:
+        //   1. LightColorEventBoxConverter.Convert(LightColorEventBox, ILightGroup)
+        //      calls LightColoBaseDataConvertor.Convert on each ICustomData save-data item,
+        //      which returns plain LightColorBaseData game-structs (custom data is dropped).
+        //   2. The structs are stored in a LightColorBeatmapEventDataBox._lightColorBaseDataList.
+        //   3. LightColorBeatmapEventDataBox.Unpack(...) is called much later (at play time, once
+        //      per event during gameplay) and creates LightColorBeatmapEventData items from those
+        //      plain structs via IBeatmapLightEventConverter. At that point Ldarg_1 is `groupBoxBeat`
+        //      (a float), not the save data - so there is nothing carrying ICustomData.
+        //
+        // Solution: a two-postfix ConditionalWeakTable approach (same motivation as the
+        // ObstacleConvertV2_6_0AndEarlier prefix override):
+        //   - Postfix LightColorEventBoxConverter.Convert to read ICustomData from the original
+        //     save data list (before the structs are stripped) and store per-index CustomData
+        //     in a ConditionalWeakTable keyed by the returned LightColorBeatmapEventDataBox.
+        //   - Postfix LightColorBeatmapEventDataBox.Unpack to look up the box in the table
+        //     and replace output LightColorBeatmapEventData items with CustomLightColorBeatmapEventData.
+        // Maps each LightColorBeatmapEventDataBox instance → ordered list of per-event CustomData
+        // (null entry = no custom data for that event index).
+        private static readonly ConditionalWeakTable<LightColorBeatmapEventDataBox, List<CustomData?>> _boxCustomData
+            = new();
 
         private static CustomData GetData(this IBeat dataItem)
         {
@@ -160,6 +194,101 @@ namespace CustomJSONData.HarmonyPatches
             return instructions.ReplaceCtor(_version3, _rotationEventCtor, _customRotationEventCtor);
         }
 #endif
+
+        [HarmonyPostfix]
+        [HarmonyPatch(
+            typeof(BeatmapDataLoaderVersion3.BeatmapDataLoader.LightColorEventBoxConverter),
+            "Convert")]
+        private static void LightColorEventBoxConverterPostfix(
+            BeatmapSaveDataVersion3.LightColorEventBox saveData,
+            BeatmapEventDataBox __result)
+        {
+            if (__result is not LightColorBeatmapEventDataBox box)
+            {
+                return;
+            }
+
+            List<CustomData?> perEventData = new();
+            bool anyCustom = false;
+            foreach (BeatmapSaveDataVersion3.LightColorBaseData item in saveData.lightColorBaseDataList ?? new List<BeatmapSaveDataVersion3.LightColorBaseData>())
+            {
+                if (item is ICustomData cd && cd.customData.Count > 0)
+                {
+                    perEventData.Add(cd.customData);
+                    anyCustom = true;
+                }
+                else
+                {
+                    perEventData.Add(null);
+                }
+            }
+
+            if (anyCustom)
+            {
+                _boxCustomData.Add(box, perEventData);
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(LightColorBeatmapEventDataBox), "Unpack")]
+#if V1_42_1
+        private static void LightColorBeatmapEventDataBoxUnpackPostfix(
+            LightColorBeatmapEventDataBox __instance,
+            ref IEnumerable<BeatmapEventData> __result)
+#else
+        private static void LightColorBeatmapEventDataBoxUnpackPostfix(
+            LightColorBeatmapEventDataBox __instance,
+            List<BeatmapEventData> output)
+#endif
+        {
+            if (!_boxCustomData.TryGetValue(__instance, out List<CustomData?> perEventData))
+            {
+                return;
+            }
+
+            // output may contain events from multiple boxes (appended); scan from the end
+            // matching the count of items we know this box produced.
+            int boxCount = perEventData!.Count;
+#if V1_42_1
+            List<BeatmapEventData> outputList = __result?.ToList() ?? new List<BeatmapEventData>();
+            __result = outputList;
+#else
+            List<BeatmapEventData> outputList = output;
+#endif
+            int outputStart = outputList.Count - boxCount;
+            if (outputStart < 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < boxCount; i++)
+            {
+                CustomData? customData = perEventData[i];
+                if (customData == null)
+                {
+                    continue;
+                }
+
+                int outIdx = outputStart + i;
+                if (outputList[outIdx] is not LightColorBeatmapEventData ev || ev is CustomLightColorBeatmapEventData)
+                {
+                    continue;
+                }
+
+                outputList[outIdx] = new CustomLightColorBeatmapEventData(
+                    ev.time,
+                    ev.groupId,
+                    ev.elementId,
+                    ev.usePreviousValue,
+                    ev.easeType,
+                    ev.colorType,
+                    ev.brightness,
+                    ev.strobeBeatFrequency,
+                    ev.strobeBrightness,
+                    ev.strobeFade,
+                    customData);
+            }
+        }
 
         [HarmonyTranspiler]
         [HarmonyPatch(

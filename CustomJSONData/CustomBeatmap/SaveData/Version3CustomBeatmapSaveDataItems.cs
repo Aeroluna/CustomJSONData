@@ -8,7 +8,9 @@ using _BpmChangeEventData = BeatmapSaveDataVersion3.BpmChangeEventData;
 using _BurstSliderData = BeatmapSaveDataVersion3.BurstSliderData;
 using _ColorBoostEventData = BeatmapSaveDataVersion3.ColorBoostEventData;
 using _ColorNoteData = BeatmapSaveDataVersion3.ColorNoteData;
+using _EnvironmentColorType = BeatmapSaveDataCommon.EnvironmentColorType;
 using _ExecutionTime = BeatmapSaveDataCommon.ExecutionTime;
+using _LightColorBaseData = BeatmapSaveDataVersion3.LightColorBaseData;
 using _LightColorEventBoxGroup = BeatmapSaveDataVersion3.LightColorEventBoxGroup;
 using _LightRotationEventBoxGroup = BeatmapSaveDataVersion3.LightRotationEventBoxGroup;
 using _NoteColorType = BeatmapSaveDataCommon.NoteColorType;
@@ -27,7 +29,9 @@ using _BpmChangeEventData = BeatmapSaveDataVersion3.BeatmapSaveData.BpmChangeEve
 using _BurstSliderData = BeatmapSaveDataVersion3.BeatmapSaveData.BurstSliderData;
 using _ColorBoostEventData = BeatmapSaveDataVersion3.BeatmapSaveData.ColorBoostEventData;
 using _ColorNoteData = BeatmapSaveDataVersion3.BeatmapSaveData.ColorNoteData;
+using _EnvironmentColorType = BeatmapSaveDataVersion3.BeatmapSaveData.EnvironmentColorType;
 using _ExecutionTime = BeatmapSaveDataVersion3.BeatmapSaveData.ExecutionTime;
+using _LightColorBaseData = BeatmapSaveDataVersion3.BeatmapSaveData.LightColorBaseData;
 using _LightColorEventBoxGroup = BeatmapSaveDataVersion3.BeatmapSaveData.LightColorEventBoxGroup;
 using _LightRotationEventBoxGroup = BeatmapSaveDataVersion3.BeatmapSaveData.LightRotationEventBoxGroup;
 using _NoteColorType = BeatmapSaveDataVersion3.BeatmapSaveData.NoteColorType;
@@ -125,6 +129,36 @@ namespace CustomJSONData.CustomBeatmap
                 List<LightColorEventBox> eventBoxes,
                 CustomData customData)
                 : base(beat, groupId, eventBoxes)
+            {
+                this.customData = customData;
+            }
+
+            public CustomData customData { get; }
+        }
+
+        public class LightColorBaseDataSaveData : _LightColorBaseData, ICustomData
+        {
+#if !V1_29_1
+            public LightColorBaseDataSaveData(
+                float beat,
+                TransitionType transitionType,
+                _EnvironmentColorType colorType,
+                float brightness,
+                int strobeBeatFrequency,
+                float strobeBrightness,
+                bool strobeFade,
+                CustomData customData)
+                : base(beat, transitionType, colorType, brightness, strobeBeatFrequency, strobeBrightness, strobeFade)
+#else
+            public LightColorBaseDataSaveData(
+                float beat,
+                TransitionType transitionType,
+                _EnvironmentColorType colorType,
+                float brightness,
+                int strobeBeatFrequency,
+                CustomData customData)
+                : base(beat, transitionType, colorType, brightness, strobeBeatFrequency)
+#endif
             {
                 this.customData = customData;
             }

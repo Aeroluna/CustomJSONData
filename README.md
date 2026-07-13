@@ -106,6 +106,58 @@ if (noteData is ICustomData customDataInterface)
 
 *Note: The recommended way to create custom events to trigger plugin functionality is with CustomJSONData's [custom events](#Custom-events) feature. Custom data on lighting events should be used when your plugin does something related to the Beat Saber lighting event the data is placed on (e.g. changing the color of a group of lights or the direction of a ring spin), not to create new event types.*
 
+# Custom data on Group Lighting System (GLS) events (v3)
+Custom data can also be attached to individual light color events within `lightColorEventBoxGroups` by adding a `customData` property to items in the `e` (events) array of a light color event box:
+```json
+"lightColorEventBoxGroups": [
+  {
+    "b": 10.0,
+    "g": 0,
+    "e": [
+      {
+        "f": { "p": 0, "n": 4, "f": 0 },
+        "w": 1.0,
+        "d": 1,
+        "r": 1.0,
+        "t": 1,
+        "b": 1,
+        "i": 0,
+        "e": [
+          {
+            "b": 0.0,
+            "i": 0,
+            "c": 1,
+            "s": 1.0,
+            "f": 0,
+            "sb": 0.0,
+            "sf": 0,
+            "customData": {
+              "color": [1.0, 0.0, 0.0, 1.0]  // RGBA
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
+```
+To get this data at runtime, cast the `LightColorBeatmapEventData` received by your lighting callback to `CustomLightColorBeatmapEventData` (or check `ICustomData`):
+```csharp
+if (lightColorEventData is CustomLightColorBeatmapEventData customGlsEvent)
+{
+    List<object>? colorArray = customGlsEvent.customData.Get<List<object>>("color");
+    // colorArray contains [1.0, 0.0, 0.0, 1.0]
+}
+
+// Alternatively via ICustomData interface:
+if (lightColorEventData is ICustomData customDataInterface)
+{
+    List<object>? colorArray = customDataInterface.customData.Get<List<object>>("color");
+}
+```
+
+**Important implementation note:** Unlike `BasicBeatmapEventData` (where custom data is attached to a simple converter taking the save data item as its only parameter), `LightColorBeatmapEventData` instances are created inside `LightColorBeatmapEventDataBox.Unpack` well after the save data has been converted to game structs. CustomJSONData bridges this gap using a `ConditionalWeakTable` that associates each box with its per-event custom data at load time, then applies it in a postfix on `Unpack`. See `ConvertersCustomify.cs` for the full explanation and implementation.
+
 # Burst Sliders
 Unlike other objects, burst sliders (or chains) are handled by creating many `NoteData`s from one `SliderData`. All of these `NoteData`s will inherit the same `CustomData` object from their original `SliderData`.
 ```json

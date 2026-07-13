@@ -1080,6 +1080,7 @@ namespace CustomJSONData.CustomBeatmap
                                                 float strobeBrightness = default;
                                                 bool strobeFade = default;
 #endif
+                                                CustomData lightData = new();
                                                 return reader.ReadObject(lightName =>
                                                 {
                                                     switch (lightName)
@@ -1120,11 +1121,15 @@ namespace CustomJSONData.CustomBeatmap
                                                             break;
 #endif
 
+                                                        case _customData:
+                                                            reader.ReadToDictionary(lightData);
+                                                            break;
+
                                                         default:
                                                             reader.Skip();
                                                             break;
                                                     }
-                                                }).Finish(() => lightColorBaseDataList.Add(new _LightColorBaseData(
+                                                }).Finish(() => lightColorBaseDataList.Add(new LightColorBaseDataSaveData(
                                                     lightBeat,
                                                     transitionType,
                                                     colorType,
@@ -1132,9 +1137,11 @@ namespace CustomJSONData.CustomBeatmap
 #if !V1_29_1
                                                     strobeFrequency,
                                                     strobeBrightness,
-                                                    strobeFade)));
+                                                    strobeFade,
+                                                    lightData)));
 #else
-                                                    strobeFrequency)));
+                                                    strobeFrequency,
+                                                    lightData)));
 #endif
                                             });
                                             break;
