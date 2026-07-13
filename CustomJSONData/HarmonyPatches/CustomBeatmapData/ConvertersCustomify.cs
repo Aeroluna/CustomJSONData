@@ -1,6 +1,7 @@
 ﻿#if !PRE_V1_37_1
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -230,9 +231,15 @@ namespace CustomJSONData.HarmonyPatches
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LightColorBeatmapEventDataBox), "Unpack")]
+#if V1_42_1
+        private static void LightColorBeatmapEventDataBoxUnpackPostfix(
+            LightColorBeatmapEventDataBox __instance,
+            ref IEnumerable<BeatmapEventData> __result)
+#else
         private static void LightColorBeatmapEventDataBoxUnpackPostfix(
             LightColorBeatmapEventDataBox __instance,
             List<BeatmapEventData> output)
+#endif
         {
             if (!_boxCustomData.TryGetValue(__instance, out List<CustomData?> perEventData))
             {
@@ -242,7 +249,13 @@ namespace CustomJSONData.HarmonyPatches
             // output may contain events from multiple boxes (appended); scan from the end
             // matching the count of items we know this box produced.
             int boxCount = perEventData!.Count;
-            int outputStart = output.Count - boxCount;
+#if V1_42_1
+            List<BeatmapEventData> outputList = __result?.ToList() ?? new List<BeatmapEventData>();
+            __result = outputList;
+#else
+            List<BeatmapEventData> outputList = output;
+#endif
+            int outputStart = outputList.Count - boxCount;
             if (outputStart < 0)
             {
                 return;
@@ -257,12 +270,12 @@ namespace CustomJSONData.HarmonyPatches
                 }
 
                 int outIdx = outputStart + i;
-                if (output[outIdx] is not LightColorBeatmapEventData ev || ev is CustomLightColorBeatmapEventData)
+                if (outputList[outIdx] is not LightColorBeatmapEventData ev || ev is CustomLightColorBeatmapEventData)
                 {
                     continue;
                 }
 
-                output[outIdx] = new CustomLightColorBeatmapEventData(
+                outputList[outIdx] = new CustomLightColorBeatmapEventData(
                     ev.time,
                     ev.groupId,
                     ev.elementId,
