@@ -9,7 +9,11 @@ namespace CustomJSONData.CustomBeatmap
             string name,
             string audioClipPath,
             string audioDataPath,
+#if LATEST
+            Dictionary<(BeatmapCharacteristic Characteristic, BeatmapDifficulty Difficulty), FileDifficultyBeatmap> difficultyBeatmaps,
+#else
             Dictionary<(BeatmapCharacteristicSO Characteristic, BeatmapDifficulty Difficulty), FileDifficultyBeatmap> difficultyBeatmaps,
+#endif
             CustomData customData)
             : base(name, audioClipPath, audioDataPath, difficultyBeatmaps)
         {

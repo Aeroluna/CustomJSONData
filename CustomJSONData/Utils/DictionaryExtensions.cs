@@ -35,7 +35,11 @@ namespace CustomJSONData
         public static CustomData GetBeatmapCustomData(this BeatmapLevel beatmapLevel, in BeatmapKey beatmapKey)
         {
             BeatmapBasicData? beatmapBasicData =
+#if LATEST
+                beatmapLevel.GetDifficultyBeatmapData(beatmapKey.characteristic, beatmapKey.difficulty);
+#else
                 beatmapLevel.GetDifficultyBeatmapData(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
+#endif
             if (beatmapBasicData is CustomBeatmapBasicData customBeatmapBasicData)
             {
                 return customBeatmapBasicData.beatmapCustomData;
