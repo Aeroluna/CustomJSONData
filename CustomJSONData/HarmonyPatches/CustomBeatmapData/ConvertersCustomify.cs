@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using BeatmapSaveDataCommon;
 using CustomJSONData.CustomBeatmap;
+using CustomJSONData.CustomBeatmap.BaseData;
 using HarmonyLib;
 
 namespace CustomJSONData.HarmonyPatches
@@ -45,6 +46,9 @@ namespace CustomJSONData.HarmonyPatches
         private static readonly ConstructorInfo _colorBoostEventCtor = AccessTools.FirstConstructor(typeof(ColorBoostBeatmapEventData), _ => true);
         private static readonly ConstructorInfo _customColorBoostEventCtor = AccessTools.FirstConstructor(typeof(CustomColorBoostBeatmapEventData), _ => true);
 
+        private static readonly ConstructorInfo _lightColorBaseDataCtor = AccessTools.FirstConstructor(typeof(LightColorBaseData), _ => true);
+        private static readonly ConstructorInfo _customLightColorBaseDataCtor = AccessTools.FirstConstructor(typeof(CustomLightColorBaseData), _ => true);
+
         private static readonly FieldInfo _version2 = AccessTools.Field(typeof(BeatmapSaveDataHelpers), nameof(BeatmapSaveDataHelpers.version2));
         private static readonly FieldInfo _version3 = AccessTools.Field(typeof(BeatmapSaveDataHelpers), nameof(BeatmapSaveDataHelpers.version3));
 
@@ -60,14 +64,7 @@ namespace CustomJSONData.HarmonyPatches
             MethodInfo original,
             MethodInfo replace)
         {
-            return new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Call, original))
-                .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Ldarg_1),
-                    new CodeInstruction(OpCodes.Call, _getData),
-                    new CodeInstruction(OpCodes.Ldsfld, field))
-                .SetOperandAndAdvance(replace)
-                .InstructionEnumeration();
+            return ReplaceInstructionInternal(instructions, field, original, replace, OpCodes.Call, OpCodes.Ldarg_1);
         }
 
         private static IEnumerable<CodeInstruction> ReplaceCtor(
@@ -76,10 +73,30 @@ namespace CustomJSONData.HarmonyPatches
             ConstructorInfo original,
             ConstructorInfo replace)
         {
+            return ReplaceInstructionInternal(instructions, field, original, replace, OpCodes.Newobj, OpCodes.Ldarg_1);
+        }
+
+        private static IEnumerable<CodeInstruction> ReplaceCtorStatic(
+            this IEnumerable<CodeInstruction> instructions,
+            FieldInfo field,
+            ConstructorInfo original,
+            ConstructorInfo replace)
+        {
+            return ReplaceInstructionInternal(instructions, field, original, replace, OpCodes.Newobj, OpCodes.Ldarg_0);
+        }
+
+        private static IEnumerable<CodeInstruction> ReplaceInstructionInternal(
+            IEnumerable<CodeInstruction> instructions,
+            FieldInfo field,
+            MethodBase original,
+            MethodBase replace,
+            OpCode matchOpcode,
+            OpCode argumentOpcode)
+        {
             return new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Newobj, original))
+                .MatchForward(false, new CodeMatch(matchOpcode, original))
                 .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Ldarg_1),
+                    new CodeInstruction(argumentOpcode),
                     new CodeInstruction(OpCodes.Call, _getData),
                     new CodeInstruction(OpCodes.Ldsfld, field))
                 .SetOperandAndAdvance(replace)
@@ -177,6 +194,15 @@ namespace CustomJSONData.HarmonyPatches
         private static IEnumerable<CodeInstruction> ColorBoostEventConvertV3(IEnumerable<CodeInstruction> instructions)
         {
             return instructions.ReplaceCtor(_version3, _colorBoostEventCtor, _customColorBoostEventCtor);
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(
+            typeof(BeatmapDataLoaderVersion3.BeatmapDataLoader.LightColoBaseDataConvertor),
+            nameof(BeatmapDataLoaderVersion3.BeatmapDataLoader.LightColoBaseDataConvertor.Convert))]
+        private static IEnumerable<CodeInstruction> LightColorBaseDataConvertV3(IEnumerable<CodeInstruction> instructions)
+        {
+            return instructions.ReplaceCtorStatic(_version3, _lightColorBaseDataCtor, _customLightColorBaseDataCtor);
         }
 
         // VERSION 2_6_0AndEarlier

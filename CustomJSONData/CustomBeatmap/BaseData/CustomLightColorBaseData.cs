@@ -1,13 +1,11 @@
 ﻿using System;
 
-namespace CustomJSONData.CustomBeatmap
+namespace CustomJSONData.CustomBeatmap.BaseData
 {
-    public class CustomLightColorBeatmapEventData : LightColorBeatmapEventData, ICustomData, IVersionable
+    public class CustomLightColorBaseData : LightColorBaseData, ICustomData, IVersionable
     {
-        public CustomLightColorBeatmapEventData(
-            float time,
-            int groupId,
-            int elementId,
+        public CustomLightColorBaseData(
+            float beat,
 #if PRE_V1_37_1
             BeatmapEventTransitionType transitionType,
 #else
@@ -24,9 +22,7 @@ namespace CustomJSONData.CustomBeatmap
             CustomData customData,
             Version version)
             : base(
-                time,
-                groupId,
-                elementId,
+                beat,
 #if PRE_V1_37_1
                 transitionType,
 #else
@@ -50,28 +46,5 @@ namespace CustomJSONData.CustomBeatmap
         public CustomData customData { get; }
 
         public Version version { get; }
-
-        public override BeatmapDataItem GetCopy()
-        {
-            return new CustomLightColorBeatmapEventData(
-                time,
-                groupId,
-                elementId,
-#if PRE_V1_37_1
-                transitionType,
-#else
-                usePreviousValue,
-                easeType,
-#endif
-                colorType,
-                brightness,
-                strobeBeatFrequency,
-#if !V1_29_1
-                strobeBrightness,
-                strobeFade,
-#endif
-                customData.Copy(),
-                version);
-        }
     }
 }
