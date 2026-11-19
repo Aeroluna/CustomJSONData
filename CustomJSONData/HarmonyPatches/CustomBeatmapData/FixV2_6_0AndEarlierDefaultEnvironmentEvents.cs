@@ -1,4 +1,4 @@
-﻿#if !PRE_V1_37_1
+﻿#if !PRE_V1_37_1 && !LATEST
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -6,6 +6,7 @@ using HarmonyLib;
 
 namespace CustomJSONData.HarmonyPatches
 {
+    // https://github.com/Meivyn/BeatSaberBugs/issues/4
     [HarmonyPatch(typeof(BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader))]
     internal static class FixV2_6_0AndEarlierDefaultEnvironmentEvents
     {

@@ -36,7 +36,7 @@ namespace CustomJSONData
         {
             BeatmapBasicData? beatmapBasicData =
 #if LATEST
-                beatmapLevel.GetDifficultyBeatmapData(beatmapKey.characteristic, beatmapKey.difficulty);
+                beatmapLevel.GetDifficultyBeatmapData(beatmapKey);
 #else
                 beatmapLevel.GetDifficultyBeatmapData(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
 #endif
@@ -52,7 +52,11 @@ namespace CustomJSONData
         public static CustomData GetLevelCustomData(this BeatmapLevel beatmapLevel)
         {
             // a lil jank but w/e
+#if LATEST
+            BeatmapBasicData? beatmapBasicData = beatmapLevel.gameplayTypeBeatmapBasicData.Values.FirstOrDefault();
+#else
             BeatmapBasicData? beatmapBasicData = beatmapLevel.beatmapBasicData.Values.FirstOrDefault();
+#endif
             if (beatmapBasicData is CustomBeatmapBasicData customBeatmapBasicData)
             {
                 return customBeatmapBasicData.levelCustomData;

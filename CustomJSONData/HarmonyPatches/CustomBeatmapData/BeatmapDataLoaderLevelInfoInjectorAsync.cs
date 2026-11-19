@@ -62,6 +62,20 @@ namespace CustomJSONData.HarmonyPatches
         {
             return new CodeMatcher(instructions)
                 .End()
+#if LATEST
+                .MatchBack(
+                    false,
+                    new CodeMatch(n =>
+                        n.opcode == OpCodes.Stloc_2))
+                .Advance(1)
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _beatmapLevelData),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _beatmapKey),
+                    new CodeInstruction(OpCodes.Ldloc_2),
+                    new CodeInstruction(OpCodes.Call, _injectCustomData))
+#else
                 .MatchBack(
                     false,
                     new CodeMatch(n =>
@@ -77,6 +91,7 @@ namespace CustomJSONData.HarmonyPatches
 #endif
                     new CodeInstruction(OpCodes.Call, _injectCustomData),
                     new CodeInstruction(OpCodes.Ldarg_0))
+#endif
                 .InstructionEnumeration();
         }
     }

@@ -1,4 +1,4 @@
-﻿#if !PRE_V1_37_1
+﻿#if !PRE_V1_37_1 && !LATEST
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 
