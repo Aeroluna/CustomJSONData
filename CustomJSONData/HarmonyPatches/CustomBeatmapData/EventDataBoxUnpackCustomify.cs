@@ -3,6 +3,9 @@ using System.Reflection;
 using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+#if !V1_29_1
+using CustomJSONData.CustomBeatmap.BaseData;
+#endif
 
 namespace CustomJSONData.HarmonyPatches
 {
@@ -45,24 +48,46 @@ namespace CustomJSONData.HarmonyPatches
             float? nextEventBrightness,
             LightColorBaseData lightColorBaseData)
         {
-            if (instance is not BeatmapLightEventConverterNoConvert type || type._ignoreColorEvents)
+            if (lightColorBaseData is CustomLightColorBaseData customLightColorBaseData)
             {
-                yield break;
-            }
+                if (instance is not BeatmapLightEventConverterNoConvert type || type._ignoreColorEvents)
+                {
+                    yield break;
+                }
 
-            yield return new CustomLightColorBeatmapEventData(
-                time,
-                groupId,
-                elementId,
-                usePreviousValue,
-                easeType,
-                colorType,
-                brightness,
-                strobeBeatFrequency,
-                strobeBrightness,
-                strobeFade,
-                lightColorBaseData is ICustomData customData ? customData.customData : new CustomData(),
-                VersionExtensions.version3);
+                yield return new CustomLightColorBeatmapEventData(
+                    time,
+                    groupId,
+                    elementId,
+                    usePreviousValue,
+                    easeType,
+                    colorType,
+                    brightness,
+                    strobeBeatFrequency,
+                    strobeBrightness,
+                    strobeFade,
+                    customLightColorBaseData.customData,
+                    VersionExtensions.version3);
+            }
+            else
+            {
+                foreach (BeatmapEventData beatmapEventData in instance.ConvertLightColorBeatmapEvent(
+                             subtypeIdentifier,
+                             time,
+                             groupId,
+                             elementId,
+                             usePreviousValue,
+                             easeType,
+                             colorType,
+                             brightness,
+                             strobeBeatFrequency,
+                             strobeBrightness,
+                             strobeFade,
+                             nextEventBrightness))
+                {
+                    yield return beatmapEventData;
+                }
+            }
         }
 #elif V1_40_8
         private static readonly MethodInfo _original = AccessTools.Method(
@@ -78,9 +103,9 @@ namespace CustomJSONData.HarmonyPatches
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Call, _original))
+                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _original))
                 .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Ldarg_0))
+                    new CodeInstruction(OpCodes.Ldloc_3))
                 .SetOperandAndAdvance(_custom)
                 .InstructionEnumeration();
         }
@@ -101,19 +126,38 @@ namespace CustomJSONData.HarmonyPatches
             bool strobeFade,
             LightColorBaseData lightColorBaseData)
         {
-            output.Add(new CustomLightColorBeatmapEventData(
-                time,
-                groupId,
-                elementId,
-                usePreviousValue,
-                easeType,
-                colorType,
-                brightness,
-                strobeBeatFrequency,
-                strobeBrightness,
-                strobeFade,
-                lightColorBaseData is ICustomData customData ? customData.customData : new CustomData(),
-                VersionExtensions.version3));
+            if (lightColorBaseData is CustomLightColorBaseData customLightColorBaseData)
+            {
+                output.Add(new CustomLightColorBeatmapEventData(
+                    time,
+                    groupId,
+                    elementId,
+                    usePreviousValue,
+                    easeType,
+                    colorType,
+                    brightness,
+                    strobeBeatFrequency,
+                    strobeBrightness,
+                    strobeFade,
+                    customLightColorBaseData.customData,
+                    VersionExtensions.version3));
+            }
+            else
+            {
+                instance.ConvertLightColorBeatmapEvent(
+                    output,
+                    subtypeIdentifier,
+                    time,
+                    groupId,
+                    elementId,
+                    usePreviousValue,
+                    easeType,
+                    colorType,
+                    brightness,
+                    strobeBeatFrequency,
+                    strobeBrightness,
+                    strobeFade);
+            }
         }
 #else
         private static readonly ConstructorInfo _lightColorBeatmapEventDataCtor = AccessTools.FirstConstructor(typeof(LightColorBeatmapEventData), _ => true);

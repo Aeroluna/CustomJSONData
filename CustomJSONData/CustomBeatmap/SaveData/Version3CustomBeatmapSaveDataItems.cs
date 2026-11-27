@@ -168,7 +168,6 @@ namespace CustomJSONData.CustomBeatmap
             public CustomData customData { get; }
         }
 
-
         public class LightRotationEventBoxGroupSaveData : _LightRotationEventBoxGroup, ICustomData
         {
             public LightRotationEventBoxGroupSaveData(
